@@ -51,7 +51,7 @@ replaceIn("package.json", `"version": "${current}"`, `"version": "${version}"`);
 replaceIn("package-lock.json", /("name": "sentutility",\s*"version": )"[^"]+"/g, `$1"${version}"`);
 replaceIn("src-tauri/tauri.conf.json", `"version": "${current}"`, `"version": "${version}"`);
 replaceIn("src-tauri/Cargo.toml", /^version = "[^"]+"/m, `version = "${version}"`);
-replaceIn("src-tauri/Cargo.lock", /(name = "sentutility"\nversion = )"[^"]+"/, `$1"${version}"`);
+replaceIn("src-tauri/Cargo.lock", /(name = "sentutility"\r?\nversion = )"[^"]+"/, `$1"${version}"`);
 
 const message = notes || `Versão ${version}`;
 execSync("git add package.json package-lock.json src-tauri/tauri.conf.json src-tauri/Cargo.toml src-tauri/Cargo.lock", { stdio: "inherit" });
