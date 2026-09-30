@@ -1,0 +1,183 @@
+@import "tailwindcss";
+
+/*
+ * Palette: neutral graphite surfaces (no blue/purple cast) with a single
+ * restrained cobalt accent. Colour is reserved for meaning — accent for
+ * "active/primary", status colours for state — so the data stands out
+ * instead of the chrome.
+ */
+@theme {
+  /* Surfaces: graphite, each step a subtle lift */
+  --color-surface-0: #0d0e10;
+  --color-surface-1: #151619;
+  --color-surface-2: #1c1e22;
+  --color-surface-3: #26292e;
+  --color-border-subtle: #25282d;
+  --color-border-strong: #33373e;
+
+  /* Text */
+  --color-text-primary: #ededef;
+  --color-text-secondary: #a0a4ab;
+  --color-text-muted: #6e737b;
+
+  /* Accent: azure — kept on the blue/cyan side so it never reads as violet */
+  --color-accent-500: #2b8af7;
+  --color-accent-400: #5aa6fa;
+  --color-accent-600: #1f6fd1;
+  --color-accent-glow: #2b8af72e;
+
+  /* Status: slightly desaturated so they read as signals, not decoration */
+  --color-success: #30a46c;
+  --color-warning: #d9a13b;
+  --color-danger: #e5484d;
+  --color-info: #3c9ed6;
+
+  --font-sans: 'Inter Variable', 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+/* Light theme: overrides the same custom properties `@theme` generated, so
+ * every `bg-surface-0`, `text-text-primary`, etc. utility repaints for free
+ * — toggled by adding/removing `.light` on <html> (see App.tsx). */
+:root.light {
+  --color-surface-0: #f4f5f7;
+  --color-surface-1: #ffffff;
+  --color-surface-2: #f0f1f3;
+  --color-surface-3: #e4e6ea;
+  --color-border-subtle: #e2e4e8;
+  --color-border-strong: #cbced4;
+
+  --color-text-primary: #16181c;
+  --color-text-secondary: #555a63;
+  --color-text-muted: #8a8f98;
+
+  --color-accent-500: #1f78e0;
+  --color-accent-400: #2b8af7;
+  --color-accent-600: #1860b8;
+  --color-accent-glow: #1f78e01f;
+}
+
+@layer base {
+  html, body, #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-surface-0 text-text-primary antialiased;
+    font-family: var(--font-sans);
+    /* Inter's cleaner alternates: open digits and a straight-legged "l". */
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    letter-spacing: -0.005em;
+  }
+
+  h1, h2, h3 {
+    letter-spacing: -0.015em;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border-strong) transparent;
+  }
+
+  /* Lucide icons are sized in px; zoom them with the UI scale so they stay
+     proportional to the rem-based text around them (see useUiScale). */
+  svg.ff-icon {
+    zoom: var(--ui-scale, 1);
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--color-border-strong);
+    border-radius: 8px;
+  }
+}
+
+@layer components {
+  .ff-card {
+    @apply bg-surface-1 border border-border-subtle rounded-xl;
+  }
+
+  .ff-input {
+    @apply bg-surface-2 border border-border-subtle rounded-lg px-3 py-2 text-sm text-text-primary placeholder:text-text-muted outline-none transition-colors;
+  }
+  .ff-input:focus {
+    @apply border-accent-500;
+    box-shadow: 0 0 0 3px var(--color-accent-glow);
+  }
+
+  .ff-btn,
+  .ff-btn-primary,
+  .ff-btn-secondary,
+  .ff-btn-ghost,
+  .ff-btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition-colors select-none;
+  }
+  .ff-btn-primary {
+    @apply bg-accent-500 text-white hover:bg-accent-600;
+  }
+  .ff-btn-secondary {
+    @apply bg-surface-2 text-text-primary border border-border-subtle hover:border-border-strong;
+  }
+  .ff-btn-ghost {
+    @apply bg-transparent text-text-secondary hover:bg-surface-2 hover:text-text-primary;
+  }
+  .ff-btn-danger {
+    @apply bg-danger/10 text-danger border border-danger/30 hover:bg-danger/20;
+  }
+}
+
+/* ── Widget grid (react-grid-layout) in the SentUtility palette ── */
+.react-grid-item.react-grid-placeholder {
+  background: var(--color-accent-500);
+  opacity: 0.14;
+  border-radius: 0.75rem;
+}
+.react-grid-item.react-draggable-dragging,
+.react-grid-item.resizing {
+  z-index: 20;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.35);
+  border-radius: 0.75rem;
+}
+.react-grid-item > .react-resizable-handle {
+  z-index: 30;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+.react-grid-item > .react-resizable-handle.react-resizable-handle-se {
+  right: 2px;
+  bottom: 2px;
+}
+.react-grid-item > .react-resizable-handle::after {
+  right: 4px;
+  bottom: 4px;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 2px solid var(--color-accent-500);
+  border-bottom: 2px solid var(--color-accent-500);
+}
+.ff-grid-editing {
+  background-image: radial-gradient(var(--color-border-strong) 1px, transparent 1px);
+  background-size: 1.25rem 1.25rem;
+}
+
+/* Section glyphs: no badge behind them — the icon itself is larger and
+ * glows softly in the accent colour. */
+.ff-glyph {
+  color: var(--color-accent-400);
+  filter: drop-shadow(0 0 7px var(--color-accent-glow));
+}
+
+/* Satisfying completion feedback: the box pops, the row flashes green. */
+@keyframes ff-pop {
+  0% { transform: scale(0.6); }
+  55% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+@keyframes ff-flash {
+  from { background-color: color-mix(in srgb, var(--color-success) 24%, transparent); }
+  to { background-color: transparent; }
+}
+.ff-pop { animation: ff-pop 320ms cubic-bezier(0.3, 1.6, 0.5, 1); }
+.ff-flash { animation: ff-flash 900ms ease-out; }
