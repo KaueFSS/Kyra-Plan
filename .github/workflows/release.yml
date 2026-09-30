@@ -1,0 +1,69 @@
+# Builds, signs and publishes a SentUtility release whenever a version tag
+# (v1.2.3) is pushed — normally by `npm run release -- 1.2.3 "notas"`.
+# The release gets the Windows installer plus `latest.json`, which is what
+# every installed copy polls to auto-update.
+name: Publicar versão
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Notas da versão (mensagem da tag)
+        id: notes
+        shell: bash
+        run: |
+          git fetch --tags --force
+          {
+            echo "body<<__NOTES__"
+            git tag -l --format='%(contents)' "${GITHUB_REF_NAME}"
+            echo "__NOTES__"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./src-tauri -> target"
+
+      - run: npm ci
+
+      - name: Testes
+        run: npm test
+
+      - name: Testes do backend
+        working-directory: src-tauri
+        run: cargo test --lib
+
+      - name: Compilar, assinar e publicar
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: SentUtility ${{ github.ref_name }}
+          releaseBody: ${{ steps.notes.outputs.body }}
+          releaseDraft: false
+          prerelease: false
+          includeUpdaterJson: true
