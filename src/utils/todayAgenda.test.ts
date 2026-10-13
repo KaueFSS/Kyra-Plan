@@ -15,7 +15,7 @@ const block = (id: string, day: number, start: string, end: string): WeeklySched
 
 const task = (id: string, time: string | null, extra: Partial<TaskWithProgress> = {}): TaskWithProgress => ({
   id, title: id, description: "", taskType: "daily", priority: "medium", status: "pending", durationSeconds: null,
-  scheduledTime: time, recurrenceDays: null, startDate: "", endDate: null, sortOrder: 0, createdAt: "", updatedAt: "",
+  scheduledTime: time, recurrenceDays: null, startDate: "", endDate: null, sortOrder: 0, listId: null, completedAt: null, createdAt: "", updatedAt: "",
   completion: null, activeSession: null, history: [], ...extra,
 });
 

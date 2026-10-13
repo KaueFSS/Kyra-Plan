@@ -14,7 +14,7 @@ export function WeeklyTasksPage() {
     <AppDndContext>
       <div className="mx-auto flex h-full w-full max-w-5xl flex-col p-4">
         <p className="mb-3 shrink-0 text-xs text-text-muted">
-          Escolha um dia na faixa para ver as tarefas dele · arraste uma tarefa até outro dia para remarcar · clique no nome para editar.
+          Marque as tarefas de hoje · arraste um cartão para outro dia para remarcar · clique para editar · use o + de cada dia para adicionar ou repetir.
         </p>
         <div className="min-h-0 flex-1">
           <WeeklyTasksBoard tasks={weekly} />

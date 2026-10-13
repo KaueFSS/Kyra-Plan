@@ -1,5 +1,10 @@
 import { DateTime } from "luxon";
-import { CalendarRange } from "../ui/icons";
+import { useState } from "react";
+import { CalendarRange, Plus } from "../ui/icons";
+import { IconAction } from "../ui/WidgetCard";
+import { anchorBelow } from "../ui/Popover";
+import { BlockEditorPopover, type BlockDraft } from "../schedule/BlockEditorPopover";
+import { suggestNextSlot } from "../../stores/smartActions";
 import { useUiStore } from "../../stores/uiStore";
 import { useLiveTick } from "../../hooks/useLiveTick";
 import { WidgetCard } from "../ui/WidgetCard";
@@ -25,6 +30,8 @@ export function WeeklyScheduleWidget({ blocks }: { blocks: WeeklyScheduleBlock[]
   const { setPage } = useUiStore();
   const now = DateTime.fromMillis(useLiveTick(30_000));
   const status = scheduleStatus(blocks, now);
+  const [draft, setDraft] = useState<BlockDraft | null>(null);
+  const today = now.weekday - 1;
 
   return (
     <WidgetCard
@@ -32,8 +39,16 @@ export function WeeklyScheduleWidget({ blocks }: { blocks: WeeklyScheduleBlock[]
       title="Programação Semanal"
       subtitle={<span className={status.live ? "font-medium text-accent-400" : undefined}>{status.text}</span>}
       onTitleClick={() => setPage("weekly-schedule")}
+      actions={
+        <IconAction
+          icon={Plus}
+          label="Novo horário"
+          onClick={(e) => setDraft({ anchor: anchorBelow(e.currentTarget), block: null, dayOfWeek: today, days: [today], ...suggestNextSlot() })}
+        />
+      }
     >
       <WeeklyTimetable blocks={blocks} />
+      <BlockEditorPopover draft={draft} onClose={() => setDraft(null)} />
     </WidgetCard>
   );
 }

@@ -8,7 +8,7 @@ const NOW = DateTime.fromISO("2026-09-30T15:00:00");
 
 const task = (id: string, days: number[], doneOn: string[], doneToday = false): TaskWithProgress => ({
   id, title: id, description: "", taskType: "weekly", priority: "medium", status: "pending", durationSeconds: null,
-  scheduledTime: null, recurrenceDays: days, startDate: "", endDate: null, sortOrder: 0, createdAt: "", updatedAt: "",
+  scheduledTime: null, recurrenceDays: days, startDate: "", endDate: null, sortOrder: 0, listId: null, completedAt: null, createdAt: "", updatedAt: "",
   completion: doneToday ? { id: "c", taskId: id, cycleDate: "2026-09-30", completed: true, completedAt: null } : null,
   activeSession: null,
   history: doneOn.map((d) => ({ id: d, taskId: id, cycleDate: d, completed: true, completedAt: null })),
