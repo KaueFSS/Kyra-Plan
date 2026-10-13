@@ -17,7 +17,7 @@ const PRIORITIES: { value: Priority; label: string; dot: string }[] = [
   { value: "high", label: "Alta", dot: "bg-danger" },
 ];
 
-/** Inline editor for daily and weekly tasks (title, time, priority, days). */
+/** Inline editor for daily, weekly and one-off list tasks (title, time, priority, days or due date). */
 export function TaskEditorPopover({ target, onClose }: { target: TaskEditTarget | null; onClose: () => void }) {
   const { updateTask, deleteTask } = useTaskStore();
   const [title, setTitle] = useState("");
@@ -25,11 +25,13 @@ export function TaskEditorPopover({ target, onClose }: { target: TaskEditTarget 
   const [priority, setPriority] = useState<Priority>("medium");
   const [days, setDays] = useState<number[]>([]);
   const [durationMinutes, setDurationMinutes] = useState("");
+  const [dueDate, setDueDate] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   const task = target?.task;
   const isWeekly = task?.taskType === "weekly";
+  const isSingle = task?.taskType === "single";
 
   useEffect(() => {
     if (!task) return;
@@ -38,6 +40,7 @@ export function TaskEditorPopover({ target, onClose }: { target: TaskEditTarget 
     setPriority(task.priority);
     setDays(task.recurrenceDays ?? []);
     setDurationMinutes(task.durationSeconds ? String(Math.round(task.durationSeconds / 60)) : "");
+    setDueDate(task.endDate ?? "");
     setError(null);
   }, [task]);
 
@@ -55,7 +58,8 @@ export function TaskEditorPopover({ target, onClose }: { target: TaskEditTarget 
           scheduledTime: time || null,
           priority,
           recurrenceDays: isWeekly ? days : task.recurrenceDays,
-          durationSeconds: minutes > 0 ? Math.round(minutes) * 60 : null,
+          durationSeconds: isSingle ? task.durationSeconds : minutes > 0 ? Math.round(minutes) * 60 : null,
+          endDate: isSingle ? dueDate || null : task.endDate,
         }),
       );
       onClose();
@@ -67,7 +71,7 @@ export function TaskEditorPopover({ target, onClose }: { target: TaskEditTarget 
   };
 
   return (
-    <Popover anchor={target?.anchor ?? null} onClose={onClose} title={isWeekly ? "Tarefa semanal" : "Tarefa diária"}>
+    <Popover anchor={target?.anchor ?? null} onClose={onClose} title={isSingle ? "Tarefa" : isWeekly ? "Tarefa semanal" : "Tarefa diária"}>
       <div className="space-y-3" onKeyDown={(e) => e.key === "Enter" && save()}>
         <input autoFocus className="ff-input w-full" value={title} onChange={(e) => setTitle(e.target.value)} />
         <div className="grid grid-cols-2 gap-2">
@@ -101,6 +105,21 @@ export function TaskEditorPopover({ target, onClose }: { target: TaskEditTarget 
             <DayToggles value={days} onChange={setDays} />
           </div>
         )}
+        {isSingle && (
+          <label className="block">
+            <FieldLabel>Data (opcional)</FieldLabel>
+            <div className="flex gap-1.5">
+              <input type="date" className="ff-input min-w-0 flex-1" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+              {dueDate && (
+                <button type="button" className="ff-btn-ghost px-2 text-xs" onClick={() => setDueDate("")}>
+                  Sem data
+                </button>
+              )}
+            </div>
+            <span className="mt-1 block text-[0.75rem] text-text-muted">Com data, a tarefa também aparece no calendário.</span>
+          </label>
+        )}
+        {!isSingle && (
         <label className="block">
           <FieldLabel>Duração com cronômetro (min)</FieldLabel>
           <input
@@ -113,6 +132,7 @@ export function TaskEditorPopover({ target, onClose }: { target: TaskEditTarget 
           />
           <span className="mt-1 block text-[0.75rem] text-text-muted">Com duração, a tarefa só conclui quando o tempo acabar.</span>
         </label>
+        )}
         {error && <p className="text-xs text-danger">{error}</p>}
       </div>
       <PopoverActions

@@ -16,6 +16,10 @@ export interface Task {
   startDate: string;
   endDate: string | null;
   sortOrder: number;
+  /** One-off tasks live in a named list; recurring tasks have none. */
+  listId: string | null;
+  /** When a one-off task was ticked (UTC "YYYY-MM-DD HH:MM:SS"). */
+  completedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -58,6 +62,7 @@ export interface CreateTaskInput {
   recurrenceDays?: number[] | null;
   startDate: string;
   endDate?: string | null;
+  listId?: string | null;
 }
 
 export interface UpdateTaskInput {
@@ -71,4 +76,5 @@ export interface UpdateTaskInput {
   startDate: string;
   endDate?: string | null;
   status: TaskStatus;
+  listId?: string | null;
 }

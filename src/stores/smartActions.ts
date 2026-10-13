@@ -31,6 +31,24 @@ export async function createDailyTask(p: ParsedInput): Promise<void> {
   });
 }
 
+/**
+ * A one-off task in a list. A date ("amanhã", "15/10", "sex") becomes its
+ * due date (kept in `endDate`); a time alone means today; nothing means
+ * "no date" — it just sits in the list.
+ */
+export async function createListTask(p: ParsedInput, listId: string): Promise<void> {
+  const due = p.date ?? (p.days.length > 0 ? nextWeekday(p.days[0]) : p.startTime ? todayIsoDate() : null);
+  await useTaskStore.getState().createTask({
+    title: p.title,
+    taskType: "single",
+    priority: "medium",
+    scheduledTime: p.startTime,
+    startDate: todayIsoDate(),
+    endDate: due,
+    listId,
+  });
+}
+
 export async function createWeeklyTask(p: ParsedInput, defaultDays: number[]): Promise<void> {
   const days = p.days.length > 0 ? p.days : defaultDays;
   await useTaskStore.getState().createTask({

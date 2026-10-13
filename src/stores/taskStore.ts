@@ -2,6 +2,8 @@ import { create } from "zustand";
 import { tasksService } from "../services/tasksService";
 import type { CreateTaskInput, Task, TaskWithProgress, UpdateTaskInput } from "../types/task";
 import { ApiError } from "../services/tauri";
+import { reportError } from "./toastStore";
+import { playSound } from "../utils/sounds";
 
 export function taskToUpdateInput(task: Task, overrides: Partial<UpdateTaskInput> = {}): UpdateTaskInput {
   return {
@@ -15,6 +17,7 @@ export function taskToUpdateInput(task: Task, overrides: Partial<UpdateTaskInput
     startDate: task.startDate,
     endDate: task.endDate,
     status: task.status,
+    listId: task.listId,
     ...overrides,
   };
 }
@@ -32,8 +35,15 @@ interface TaskState {
   updateTask: (input: UpdateTaskInput) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
   toggleCompletion: (taskId: string) => Promise<void>;
+  /** Ticks/unticks a one-off task (optimistic). */
+  toggleSingle: (taskId: string) => Promise<void>;
+  moveToList: (taskId: string, listId: string) => Promise<void>;
+  /** Due date of a one-off task (kept in `endDate`; null = no date). */
+  setDueDate: (taskId: string, date: string | null) => Promise<void>;
   reorderDaily: (orderedIds: string[]) => Promise<void>;
   moveWeeklyTaskDay: (taskId: string, fromDay: number, toDay: number) => Promise<void>;
+  /** Makes a weekly task also happen on another day. */
+  addWeeklyTaskDay: (taskId: string, day: number) => Promise<void>;
 
   startTimedTask: (taskId: string) => Promise<void>;
   pauseTimedTask: (sessionId: string) => Promise<void>;
@@ -67,6 +77,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 
   createTask: async (input) => {
     await tasksService.createTask(input);
+    playSound("add");
     await get().loadAll();
   },
 
@@ -77,11 +88,59 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 
   deleteTask: async (id) => {
     await tasksService.deleteTask(id);
+    playSound("remove");
     await get().loadAll();
   },
 
   toggleCompletion: async (taskId) => {
-    await tasksService.toggleCompletion(taskId);
+    const before = [...get().daily, ...get().weekly].find((t) => t.id === taskId);
+    try {
+      await tasksService.toggleCompletion(taskId);
+      playSound(before?.completion?.completed ? "uncomplete" : "complete");
+    } catch (err) {
+      reportError(err, "Não foi possível marcar a tarefa.");
+    }
+    await get().loadAll();
+  },
+
+  toggleSingle: async (taskId) => {
+    const wasDone = get().single.find((t) => t.id === taskId)?.status === "completed";
+    const now = new Date().toISOString().replace("T", " ").slice(0, 19);
+    set({
+      single: get().single.map((t) =>
+        t.id === taskId
+          ? { ...t, status: t.status === "completed" ? "pending" : "completed", completedAt: t.status === "completed" ? null : now }
+          : t,
+      ),
+    });
+    try {
+      await tasksService.toggleSingleTask(taskId);
+      playSound(wasDone ? "uncomplete" : "complete");
+    } catch (err) {
+      reportError(err, "Não foi possível marcar a tarefa.");
+    }
+    await get().loadAll();
+  },
+
+  setDueDate: async (taskId, date) => {
+    const task = get().single.find((t) => t.id === taskId);
+    if (!task) return;
+    set({ single: get().single.map((t) => (t.id === taskId ? { ...t, endDate: date } : t)) });
+    try {
+      await tasksService.updateTask(taskToUpdateInput(task, { endDate: date }));
+    } catch (err) {
+      reportError(err, "Não foi possível mudar a data.");
+    }
+    await get().loadAll();
+  },
+
+  moveToList: async (taskId, listId) => {
+    set({ single: get().single.map((t) => (t.id === taskId ? { ...t, listId } : t)) });
+    try {
+      await tasksService.moveTaskToList(taskId, listId);
+    } catch (err) {
+      reportError(err, "Não foi possível mover a tarefa.");
+    }
     await get().loadAll();
   },
 
@@ -109,9 +168,24 @@ export const useTaskStore = create<TaskState>((set, get) => ({
     set({ weekly: get().weekly.map((t) => (t.id === taskId ? { ...t, recurrenceDays: nextDays } : t)) });
     try {
       await tasksService.updateTask(taskToUpdateInput(task, { recurrenceDays: nextDays }));
+    } catch (err) {
+      reportError(err, "Não foi possível mover a tarefa.");
     } finally {
       await get().loadAll();
     }
+  },
+
+  addWeeklyTaskDay: async (taskId, day) => {
+    const task = get().weekly.find((t) => t.id === taskId);
+    if (!task || (task.recurrenceDays ?? []).includes(day)) return;
+    const nextDays = [...(task.recurrenceDays ?? []), day].sort();
+    set({ weekly: get().weekly.map((t) => (t.id === taskId ? { ...t, recurrenceDays: nextDays } : t)) });
+    try {
+      await tasksService.updateTask(taskToUpdateInput(task, { recurrenceDays: nextDays }));
+    } catch (err) {
+      reportError(err, "Não foi possível adicionar a tarefa neste dia.");
+    }
+    await get().loadAll();
   },
 
   startTimedTask: async (taskId) => {

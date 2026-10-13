@@ -13,6 +13,8 @@ export const tasksService = {
   listTimedTasks: () => invoke<TaskWithProgress[]>("list_timed_tasks"),
 
   toggleCompletion: (taskId: string) => invoke<TaskCompletion>("toggle_task_completion", { taskId }),
+  toggleSingleTask: (id: string) => invoke<Task>("toggle_single_task", { id }),
+  moveTaskToList: (taskId: string, listId: string) => invoke<Task>("move_task_to_list", { taskId, listId }),
 
   startTimedTask: (taskId: string) => invoke<TaskSession>("start_timed_task", { taskId }),
   pauseTimedTask: (sessionId: string) => invoke<TaskSession>("pause_timed_task", { sessionId }),

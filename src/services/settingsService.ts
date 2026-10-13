@@ -14,6 +14,8 @@ export interface Settings {
   timerDefaultPresetSeconds: number;
   launchOnStartup: boolean;
   minimizeToTray: boolean;
+  /** Hours a finished one-off task stays in its list. */
+  doneTasksVisibleHours: number;
   updatedAt: string;
 }
 
