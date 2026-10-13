@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { timerService } from "../services/timerService";
 import type { TimerSnapshot } from "../types/timer";
+import { playSound } from "../utils/sounds";
 
 interface StopwatchState {
   snapshot: TimerSnapshot | null;
@@ -27,6 +28,7 @@ export const useStopwatchStore = create<StopwatchState>((set, get) => ({
   start: async () => {
     const snapshot = await timerService.start("stopwatch");
     set({ snapshot });
+    playSound("start");
   },
 
   pause: async () => {
@@ -34,6 +36,7 @@ export const useStopwatchStore = create<StopwatchState>((set, get) => ({
     if (!current) return;
     const snapshot = await timerService.pause(current.id);
     set({ snapshot });
+    playSound("pause");
   },
 
   resume: async () => {
@@ -41,6 +44,7 @@ export const useStopwatchStore = create<StopwatchState>((set, get) => ({
     if (!current) return;
     const snapshot = await timerService.resume(current.id);
     set({ snapshot });
+    playSound("start");
   },
 
   restart: async () => {
