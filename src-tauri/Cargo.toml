@@ -1,6 +1,6 @@
 [package]
 name = "sentutility"
-version = "1.0.0"
+version = "1.1.0"
 description = "SentUtility - produtividade pessoal para desktop"
 authors = ["KaueFSS"]
 edition = "2021"
