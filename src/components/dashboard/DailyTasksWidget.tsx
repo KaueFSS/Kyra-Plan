@@ -68,6 +68,7 @@ export function DailyTasksWidget({ tasks }: { tasks: TaskWithProgress[] }) {
 
       <div className="mt-2 shrink-0">
         <InlineAdd
+          kind="daily"
           label="Adicionar tarefa"
           placeholder="Ex.: Estudar por 1h · Beber água 10h"
           describe={(p) => describeTask(p)}

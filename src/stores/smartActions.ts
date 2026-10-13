@@ -24,7 +24,7 @@ export async function createDailyTask(p: ParsedInput): Promise<void> {
   await useTaskStore.getState().createTask({
     title: p.title,
     taskType: "daily",
-    priority: "medium",
+    priority: p.priority ?? "medium",
     scheduledTime: p.startTime,
     durationSeconds: durationSeconds(p),
     startDate: todayIsoDate(),
@@ -41,7 +41,7 @@ export async function createListTask(p: ParsedInput, listId: string): Promise<vo
   await useTaskStore.getState().createTask({
     title: p.title,
     taskType: "single",
-    priority: "medium",
+    priority: p.priority ?? "medium",
     scheduledTime: p.startTime,
     startDate: todayIsoDate(),
     endDate: due,
@@ -54,7 +54,7 @@ export async function createWeeklyTask(p: ParsedInput, defaultDays: number[]): P
   await useTaskStore.getState().createTask({
     title: p.title,
     taskType: "weekly",
-    priority: "medium",
+    priority: p.priority ?? "medium",
     scheduledTime: p.startTime,
     durationSeconds: durationSeconds(p),
     recurrenceDays: days,

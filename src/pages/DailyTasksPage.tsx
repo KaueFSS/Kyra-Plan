@@ -50,6 +50,7 @@ export function DailyTasksPage() {
 
           <div className="mt-3">
             <InlineAdd
+          kind="daily"
               label="Adicionar tarefa diária"
               placeholder="Ex.: Estudar Python por 1h · Ler 20 páginas 22h"
               describe={(p) => describeTask(p)}

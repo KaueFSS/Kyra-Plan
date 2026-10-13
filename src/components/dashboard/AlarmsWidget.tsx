@@ -78,6 +78,7 @@ export function AlarmsWidget({ alarms, tabs }: { alarms: Alarm[]; tabs?: ReactNo
       </div>
       <div className="mt-2 shrink-0">
         <InlineAdd
+          kind="alarm"
           label="Novo alarme"
           placeholder="Ex.: 06:30 seg a sex Acordar"
           requireTitle={false}

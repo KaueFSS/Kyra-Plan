@@ -303,6 +303,7 @@ function QuickAddPopover({
     <Popover anchor={target.anchor} onClose={onClose} title={`Adicionar na ${WEEKDAY_LABELS_LONG[day].toLowerCase()}`} width={300}>
       <div className="space-y-3">
         <InlineAdd
+          kind="weekly"
           alwaysOpen
           placeholder="Ex.: Academia 18h · Revisão por 30 min"
           describe={(p) => describeTask(p, p.days.length ? describeDays(p.days) : WEEKDAY_LABELS_LONG[day])}

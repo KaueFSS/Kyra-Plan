@@ -96,6 +96,7 @@ export function EventsWidget({ occurrences, selectedDate, range }: EventsWidgetP
 
       <div className="mt-2 shrink-0">
         <InlineAdd
+          kind="event"
           label="Adicionar evento"
           placeholder="Ex.: Prova amanhã 9h-11h"
           onSubmit={(p) => createEvents(p, selectedDate, range)}

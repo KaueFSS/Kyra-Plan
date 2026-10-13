@@ -293,6 +293,7 @@ function QuickAddPopover({
     <Popover anchor={target.anchor} onClose={onClose} title={`Adicionar na ${WEEKDAY_LABELS_LONG[day].toLowerCase()}`} width={300}>
       <div className="space-y-3">
         <InlineAdd
+          kind="schedule"
           alwaysOpen
           placeholder="Ex.: Inglês 14h-15h"
           onSubmit={async (p) => {
