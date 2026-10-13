@@ -1,0 +1,37 @@
+[
+  {
+    "version": "1.1.0",
+    "date": "2026-10-13",
+    "added": [
+      "Listas de tarefas avulsas, e dá para colocar mais de uma no painel",
+      "Tarefas concluídas saem da lista depois de 3 horas (o tempo é ajustável)",
+      "Sequência de dias: a chama no topo conta quantos dias seguidos você fez tudo",
+      "Calendário novo, com eventos e tarefas dentro de cada dia",
+      "Tarefas com data aparecem no calendário e podem ser concluídas por lá",
+      "Widget do calendário com o mesmo visual da página",
+      "Programação semanal em colunas, com Adicionar e Repetir aqui em cada dia",
+      "Tarefas semanais em colunas, com o progresso de cada dia",
+      "Barra de status no rodapé com o que está rolando agora e o que vem depois",
+      "Fundo e destaque com qualquer cor",
+      "Botão para voltar às cores padrão, no seletor de cores e em Configurações",
+      "Widgets podem ser redimensionados por qualquer borda",
+      "Sons ao concluir, adicionar, apagar e quando o dia fica completo",
+      "Clique nos botões, com opção de desligar em Configurações",
+      "Avisos na tela quando alguma ação não dá certo",
+      "Esta janela de novidades"
+    ]
+  },
+  {
+    "version": "1.0.0",
+    "date": "2026-09-29",
+    "added": [
+      "Painel com guias e widgets que você organiza do seu jeito",
+      "Calendário, eventos e tarefas diárias e semanais",
+      "Programação semanal",
+      "Foco com timer, cronômetro e tarefas com tempo",
+      "Alarmes e relógio mundial",
+      "Linha do Dia",
+      "Atualização automática"
+    ]
+  }
+]

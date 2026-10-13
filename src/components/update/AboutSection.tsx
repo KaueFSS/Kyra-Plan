@@ -1,6 +1,7 @@
 import { DateTime } from "luxon";
 import { Check, RotateCcw, Sparkles } from "../ui/icons";
 import { useUpdateStore } from "../../stores/updateStore";
+import { openWhatsNew } from "./WhatsNew";
 
 /** Settings card: current version, update status and a manual check. */
 export function AboutSection() {
@@ -47,6 +48,9 @@ export function AboutSection() {
           SentUtility <span className="ml-1 text-sm font-medium text-text-muted">{currentVersion ? `versão ${currentVersion}` : "modo navegador"}</span>
         </p>
         <div className="mt-0.5 text-xs text-text-muted">{line}</div>
+        <button className="mt-1 text-xs font-medium text-accent-400 hover:underline" onClick={() => openWhatsNew()}>
+          Ver novidades
+        </button>
       </div>
       {status.kind === "available" ? (
         <button className="ff-btn-primary px-3 py-1.5 text-xs" onClick={() => void install()}>

@@ -320,3 +320,22 @@ export const Flame = icon("Flame", () => (
     <path d="M12 3.5c.6 3-2.4 4.3-2.4 7.2 0 1 .4 1.8 1 2.3-.3-2 1.4-3 2.2-4.6 2.3 2.2 4.2 4.4 4.2 7.1a5 5 0 0 1-10 0c0-4.6 4.3-6.6 5-12z" />
   </>
 ));
+
+export const MoreHorizontal = icon("MoreHorizontal", () => (
+  <>
+    <Dot x={5.5} y={12} r={1.7} />
+    <Dot x={12} y={12} r={1.7} />
+    <Dot x={18.5} y={12} r={1.7} />
+  </>
+));
+
+/** A list of one-off tasks: a sheet with ticked and open rows. */
+export const ListTodo = icon("ListTodo", () => (
+  <>
+    <rect x="3.5" y="4" width="17" height="16" rx="4" fill="currentColor" fillOpacity={0.2} stroke="none" />
+    <rect x="3.5" y="4" width="17" height="16" rx="4" />
+    <path d="M7.2 9.4l1.3 1.3 2.2-2.4M13 9.5h4" />
+    <circle cx="8.6" cy="14.8" r="1.4" />
+    <path d="M13 14.8h4" />
+  </>
+));

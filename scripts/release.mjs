@@ -2,7 +2,10 @@
 /**
  * Publishes a new SentUtility version in one command:
  *
- *   npm run release -- 1.1.0 "Linha do Dia nova · correções nos alarmes"
+ *   npm run release -- 1.1.0
+ *
+ * Release notes come from src/data/changelog.json (only what was added),
+ * or from an optional text after the version.
  *
  * It bumps the version everywhere it lives (package.json, tauri.conf.json,
  * Cargo.toml, Cargo.lock), commits, creates an annotated tag whose message
@@ -23,7 +26,7 @@ function fail(message) {
 const run = (cmd) => execSync(cmd, { stdio: "pipe", encoding: "utf8" }).trim();
 
 if (!version || !/^\d+\.\d+\.\d+$/.test(version)) {
-  fail('Use: npm run release -- <versão> "notas da versão"   (ex.: npm run release -- 1.1.0 "Novidades…")');
+  fail("Use: npm run release -- <versão>   (ex.: npm run release -- 1.1.0)");
 }
 
 const pkg = JSON.parse(readFileSync("package.json", "utf8"));
@@ -40,6 +43,14 @@ const branch = run("git rev-parse --abbrev-ref HEAD");
 if (branch !== "main") fail(`Lance a partir da branch main (você está em ${branch}).`);
 if (run(`git tag -l v${version}`)) fail(`A tag v${version} já existe.`);
 
+// Release notes: what was passed on the command line, or the "added" list
+// for this version in src/data/changelog.json (the same list the app shows).
+// Checked before touching any file, so a missing entry leaves nothing half-done.
+const changelog = JSON.parse(readFileSync("src/data/changelog.json", "utf8"));
+const entry = changelog.find((e) => e.version === version);
+if (!notes && !entry) fail(`Adicione a versão ${version} em src/data/changelog.json (o que foi adicionado) antes de lançar.`);
+const message = notes || ["Novidades:", ...entry.added.map((item) => `- ${item}`)].join("\n");
+
 const replaceIn = (file, from, to) => {
   const text = readFileSync(file, "utf8");
   const next = text.replace(from, to);
@@ -53,7 +64,6 @@ replaceIn("src-tauri/tauri.conf.json", `"version": "${current}"`, `"version": "$
 replaceIn("src-tauri/Cargo.toml", /^version = "[^"]+"/m, `version = "${version}"`);
 replaceIn("src-tauri/Cargo.lock", /(name = "sentutility"\r?\nversion = )"[^"]+"/, `$1"${version}"`);
 
-const message = notes || `Versão ${version}`;
 execSync("git add package.json package-lock.json src-tauri/tauri.conf.json src-tauri/Cargo.toml src-tauri/Cargo.lock", { stdio: "inherit" });
 execSync(`git commit -m "Versão ${version}"`, { stdio: "inherit" });
 execSync(`git tag -a v${version} -F -`, { input: message, stdio: ["pipe", "inherit", "inherit"] });

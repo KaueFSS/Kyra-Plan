@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { scheduleService } from "../services/scheduleService";
 import type { CreateWeeklyScheduleBlockInput, UpdateWeeklyScheduleBlockInput, WeeklyScheduleBlock } from "../types/schedule";
+import { playSound } from "../utils/sounds";
 
 interface ScheduleState {
   blocks: WeeklyScheduleBlock[];
@@ -25,6 +26,7 @@ export const useScheduleStore = create<ScheduleState>((set, get) => ({
 
   create: async (input) => {
     await scheduleService.createBlock(input);
+    playSound("add");
     await get().load();
   },
 
@@ -54,6 +56,7 @@ export const useScheduleStore = create<ScheduleState>((set, get) => ({
 
   remove: async (id) => {
     await scheduleService.deleteBlock(id);
+    playSound("remove");
     await get().load();
   },
 }));

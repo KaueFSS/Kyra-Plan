@@ -2,12 +2,16 @@ import { useEffect } from "react";
 import { PageBar } from "./components/layout/PageBar";
 import { GlobalSearch } from "./components/layout/GlobalSearch";
 import { useUiStore } from "./stores/uiStore";
-import { useSettingsStore } from "./stores/settingsStore";
+import { settingsToUpdateInput, useSettingsStore } from "./stores/settingsStore";
+import { systemTimezone } from "./utils/cycleDate";
+import { playSound } from "./utils/sounds";
 import { useUiScale } from "./hooks/useUiScale";
-import { appearanceFromSettings, applyAppearance } from "./utils/appearance";
+import { DEFAULT_APPEARANCE, appearanceFromSettings, applyAppearance, sameAppearance, takeColoursMigration } from "./utils/appearance";
 import { useDailyRollover, useRunningTaskWatcher } from "./hooks/useTaskWatchers";
 import { RingOverlay } from "./components/ring/RingOverlay";
 import { UpdateToast, useAutoUpdateCheck } from "./components/update/UpdateToast";
+import { Toaster } from "./components/feedback/Toaster";
+import { WhatsNew } from "./components/update/WhatsNew";
 import { DashboardPage } from "./pages/DashboardPage";
 import { CalendarPage } from "./pages/CalendarPage";
 import { DailyTasksPage } from "./pages/DailyTasksPage";
@@ -32,7 +36,7 @@ const PAGES: Record<string, React.ComponentType> = {
 
 function App() {
   const { activePage, openSearch } = useUiStore();
-  const { settings, load: loadSettings } = useSettingsStore();
+  const { settings, load: loadSettings, update: updateSettings, setAppearance } = useSettingsStore();
   const PageComponent = PAGES[activePage] ?? DashboardPage;
   const isDashboard = activePage === "dashboard";
   useUiScale();
@@ -47,6 +51,37 @@ function App() {
   useEffect(() => {
     if (settings) applyAppearance(appearanceFromSettings(settings));
   }, [settings?.theme, settings?.accentColor]);
+
+  // The default colours changed: move everyone (including people who
+  // installed before) to the new look once; later picks are kept.
+  useEffect(() => {
+    if (!settings || !takeColoursMigration()) return;
+    if (!sameAppearance(appearanceFromSettings(settings), DEFAULT_APPEARANCE)) setAppearance(DEFAULT_APPEARANCE);
+  }, [settings, setAppearance]);
+
+  // Fresh installs start at UTC; adopt the computer's timezone once so
+  // "today" (and the daily reset) match the user's own clock.
+  useEffect(() => {
+    if (!settings || settings.timezone !== "UTC") return;
+    const zone = systemTimezone();
+    if (zone === "UTC") return;
+    void updateSettings({
+      ...settingsToUpdateInput(settings),
+      timezone: zone,
+      dailyResetTimezone: settings.dailyResetTimezone === "UTC" ? zone : settings.dailyResetTimezone,
+    });
+  }, [settings, updateSettings]);
+
+  // A soft tick on every button press — the "physical" feel (can be turned off in Settings).
+  useEffect(() => {
+    const onPointerDown = (e: PointerEvent) => {
+      if (e.button !== 0) return;
+      const el = (e.target as HTMLElement | null)?.closest("button, [role=button], [role=switch], a, select, summary");
+      if (el && !(el as HTMLButtonElement).disabled) playSound("click");
+    };
+    window.addEventListener("pointerdown", onPointerDown, true);
+    return () => window.removeEventListener("pointerdown", onPointerDown, true);
+  }, []);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -68,6 +103,8 @@ function App() {
       <GlobalSearch />
       <RingOverlay />
       <UpdateToast />
+      <Toaster />
+      <WhatsNew />
     </div>
   );
 }

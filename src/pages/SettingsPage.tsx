@@ -3,6 +3,8 @@ import { useSettingsStore, settingsToUpdateInput } from "../stores/settingsStore
 import type { UpdateSettingsInput } from "../services/settingsService";
 import { getDisplayName, setDisplayName } from "../utils/profile";
 import { AboutSection } from "../components/update/AboutSection";
+import { DEFAULT_APPEARANCE } from "../utils/appearance";
+import { SoundSettings } from "../components/settings/SoundSettings";
 
 const TIMEZONES = [
   "America/Sao_Paulo",
@@ -33,7 +35,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 export function SettingsPage() {
-  const { settings, load, update } = useSettingsStore();
+  const { settings, load, update, setAppearance } = useSettingsStore();
   const [form, setForm] = useState<UpdateSettingsInput | null>(null);
   const [saved, setSaved] = useState(false);
   const [name, setName] = useState(getDisplayName());
@@ -70,6 +72,15 @@ export function SettingsPage() {
       </Section>
 
       <Section title="Aparência">
+        <Field label="Cores do app">
+          <button
+            className="ff-btn-secondary px-3 py-1.5 text-xs"
+            onClick={() => setAppearance(DEFAULT_APPEARANCE)}
+            title="Fundo quase preto com destaque cinza — o visual de quem acabou de instalar"
+          >
+            Usar cores padrão
+          </button>
+        </Field>
         <Field label="Tema">
           <select className="ff-input" value={form.theme} onChange={(e) => set("theme", e.target.value)}>
             <option value="dark">Escuro</option>
@@ -83,6 +94,8 @@ export function SettingsPage() {
           </select>
         </Field>
       </Section>
+
+      <SoundSettings />
 
       <Section title="Data e hora">
         <Field label="Formato de hora">
@@ -126,6 +139,20 @@ export function SettingsPage() {
             {TIMEZONES.map((tz) => (
               <option key={tz} value={tz}>
                 {tz}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Tarefas avulsas concluídas saem da lista após">
+          <select
+            className="ff-input"
+            value={form.doneTasksVisibleHours}
+            onChange={(e) => set("doneTasksVisibleHours", Number(e.target.value))}
+          >
+            <option value={0}>Na hora</option>
+            {[1, 3, 6, 12, 24, 48].map((h) => (
+              <option key={h} value={h}>
+                {h} {h === 1 ? "hora" : "horas"}
               </option>
             ))}
           </select>
