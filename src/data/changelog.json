@@ -1,5 +1,22 @@
 [
   {
+    "version": "1.2.0",
+    "date": "2026-10-13",
+    "added": [
+      "Tarefas das listas na ordem que você quiser: arraste a linha inteira",
+      "Arrastar uma tarefa para outra lista, já na posição certa",
+      "Ordenar por data, no menu da lista",
+      "Som ao redimensionar um widget, que sobe de tom conforme ele cresce",
+      "Campo de escrever entende inglês e mistura dos dois idiomas",
+      "Mais jeitos de falar data e hora: 3pm, de manhã, em 3 dias, próxima segunda, 15 de outubro",
+      "Prioridade pelo texto: urgente, urgent ou !!",
+      "Sugestões a partir do que você já escreveu, com o horário e os dias de sempre",
+      "Completar com Tab enquanto digita",
+      "Recentes quando o campo está vazio",
+      "Atalhos clicáveis de dia, hora e duração embaixo do campo"
+    ]
+  },
+  {
     "version": "1.1.0",
     "date": "2026-10-13",
     "added": [
