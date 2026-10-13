@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { playSound, playStep } from "../../utils/sounds";
 import ReactGridLayout from "react-grid-layout";
 import { getCompactor } from "react-grid-layout/core";
 import "react-grid-layout/css/styles.css";
@@ -26,6 +27,7 @@ interface WidgetGridProps {
  * In edit mode widgets get a drag bar, a resize corner and a remove button.
  */
 export function WidgetGrid({ tab, editing, range }: WidgetGridProps) {
+  const lastStep = useRef(0);
   const { ref, width, height } = useElementSize<HTMLDivElement>();
   const { setWidgets, removeWidget } = useDashboardStore();
 
@@ -76,6 +78,22 @@ export function WidgetGrid({ tab, editing, range }: WidgetGridProps) {
           resizeConfig={{ enabled: editing, handles: ["n", "s", "e", "w", "ne", "nw", "se", "sw"] }}
           compactor={compactor}
           onLayoutChange={onLayoutChange}
+          onDragStart={() => playSound("open")}
+          onDragStop={() => playSound("drop")}
+          onResizeStart={(_l, item) => {
+            lastStep.current = item ? item.w + item.h : 0;
+            playSound("open");
+          }}
+          onResize={(_l, _old, item) => {
+            if (!item) return;
+            // One tick per grid step; growing climbs in pitch, shrinking walks down.
+            const step = item.w + item.h;
+            if (step !== lastStep.current) {
+              lastStep.current = step;
+              playStep(step);
+            }
+          }}
+          onResizeStop={() => playSound("drop")}
         >
           {tab.widgets.map((widget) => (
             <div key={widget.i} className="min-h-0">

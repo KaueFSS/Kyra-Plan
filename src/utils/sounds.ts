@@ -155,3 +155,29 @@ export function resetSoundCache(): void {
   cached = null;
   lastPlayed = new Map();
 }
+
+// A pentatonic scale never sounds wrong: whatever step you land on is a pleasant note.
+const PENTATONIC = [0, 2, 4, 7, 9];
+
+/**
+ * One soft tick per grid step while a widget is resized or moved. The pitch
+ * follows `step`, so growing a widget climbs the scale and shrinking it
+ * walks back down — you hear the size change.
+ */
+export function playStep(step: number): void {
+  const prefs = (cached ??= getSoundPrefs());
+  if (!prefs.enabled || prefs.volume <= 0) return;
+  const now = performance.now();
+  if (now - (lastPlayed.get("click") ?? 0) < 30) return;
+  lastPlayed.set("click", now);
+  const n = Math.max(0, Math.round(step));
+  const semitones = PENTATONIC[n % PENTATONIC.length] + 12 * (Math.floor(n / PENTATONIC.length) % 3);
+  const freq = 349.2 * 2 ** (semitones / 12);
+  play(
+    [
+      { freq, dur: 0.07, type: "sine", gain: 0.16 },
+      { freq: freq * 2, dur: 0.04, type: "triangle", gain: 0.035 },
+    ],
+    prefs.volume,
+  );
+}
