@@ -1,4 +1,4 @@
-use crate::db::repo::{settings_repo, task_completions_repo, task_sessions_repo, tasks_repo};
+use crate::db::repo::{settings_repo, task_completions_repo, task_lists_repo, task_sessions_repo, tasks_repo};
 use crate::error::{AppError, AppResult};
 use crate::models::task::{
     CreateTaskInput, Task, TaskCompletion, TaskSession, TaskStatus, TaskType, TaskWithProgress,
@@ -51,9 +51,39 @@ fn validate_create(input: &CreateTaskInput) -> AppResult<()> {
     Ok(())
 }
 
-pub fn create_task(conn: &Connection, input: CreateTaskInput) -> AppResult<Task> {
+/// The list a one-off task lands in when none is given.
+pub const DEFAULT_LIST_ID: &str = "inbox";
+
+pub fn create_task(conn: &Connection, mut input: CreateTaskInput) -> AppResult<Task> {
     validate_create(&input)?;
+    if input.task_type == TaskType::Single {
+        let list_id = input.list_id.take().unwrap_or_else(|| DEFAULT_LIST_ID.to_string());
+        // Fall back to the first list if the default one was deleted.
+        let list_id = match task_lists_repo::find_by_id(conn, &list_id) {
+            Ok(list) => list.id,
+            Err(_) => task_lists_repo::list(conn)?
+                .into_iter()
+                .next()
+                .map(|l| l.id)
+                .ok_or_else(|| AppError::Validation("Crie uma lista antes de adicionar tarefas.".into()))?,
+        };
+        input.list_id = Some(list_id);
+    } else {
+        input.list_id = None;
+    }
     tasks_repo::create(conn, &input)
+}
+
+/// Ticks / unticks a one-off task. Finished tasks stay visible for the
+/// configured number of hours, then leave their list (see list_single_tasks).
+pub fn toggle_single_task(conn: &Connection, task_id: &str) -> AppResult<Task> {
+    let task = tasks_repo::find_by_id(conn, task_id)?;
+    if task.task_type != TaskType::Single {
+        return Err(AppError::Validation("Use a conclusão diária para tarefas recorrentes.".into()));
+    }
+    let next = if task.status == TaskStatus::Completed { TaskStatus::Pending } else { TaskStatus::Completed };
+    tasks_repo::set_status(conn, task_id, next)?;
+    tasks_repo::find_by_id(conn, task_id)
 }
 
 pub fn update_task(conn: &Connection, input: UpdateTaskInput) -> AppResult<Task> {
@@ -118,7 +148,8 @@ pub fn list_weekly_tasks(conn: &Connection) -> AppResult<Vec<TaskWithProgress>> 
 
 pub fn list_single_tasks(conn: &Connection) -> AppResult<Vec<TaskWithProgress>> {
     let cycle_date = current_cycle_date(conn)?;
-    let tasks = tasks_repo::list_by_type(conn, TaskType::Single)?;
+    let visible_hours = settings_repo::get(conn)?.done_tasks_visible_hours;
+    let tasks = tasks_repo::list_visible_single(conn, visible_hours)?;
     tasks
         .into_iter()
         .map(|t| with_progress(conn, t, &cycle_date))
@@ -295,7 +326,39 @@ mod tests {
             recurrence_days: None,
             start_date: "2020-01-01".into(),
             end_date: None,
+            list_id: None,
         }
+    }
+
+    #[test]
+    fn one_off_tasks_land_in_a_list_and_leave_it_after_the_visible_window() {
+        let db = Db::open_in_memory().unwrap();
+        let conn = db.lock().unwrap();
+
+        let mut input = daily_task_input("Comprar pão");
+        input.task_type = TaskType::Single;
+        let task = create_task(&conn, input).unwrap();
+        assert_eq!(task.list_id.as_deref(), Some(DEFAULT_LIST_ID));
+
+        let done = toggle_single_task(&conn, &task.id).unwrap();
+        assert_eq!(done.status, TaskStatus::Completed);
+        assert!(done.completed_at.is_some());
+        // Within the 3h default window it still shows up…
+        assert_eq!(list_single_tasks(&conn).unwrap().len(), 1);
+
+        // …ticked 4 hours ago, it's gone.
+        conn.execute(
+            "UPDATE tasks SET completed_at = datetime('now', '-4 hours') WHERE id = ?1",
+            [&task.id],
+        )
+        .unwrap();
+        assert!(list_single_tasks(&conn).unwrap().is_empty());
+
+        // Unticking brings it back and clears the timestamp.
+        let reopened = toggle_single_task(&conn, &task.id).unwrap();
+        assert_eq!(reopened.status, TaskStatus::Pending);
+        assert!(reopened.completed_at.is_none());
+        assert_eq!(list_single_tasks(&conn).unwrap().len(), 1);
     }
 
     #[test]

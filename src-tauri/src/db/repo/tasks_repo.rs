@@ -21,6 +21,8 @@ fn row_to_task(row: &Row) -> rusqlite::Result<Task> {
         start_date: row.get("start_date")?,
         end_date: row.get("end_date")?,
         sort_order: row.get("sort_order")?,
+        list_id: row.get("list_id")?,
+        completed_at: row.get("completed_at")?,
         created_at: row.get("created_at")?,
         updated_at: row.get("updated_at")?,
     })
@@ -35,8 +37,8 @@ pub fn create(conn: &Connection, input: &CreateTaskInput) -> AppResult<Task> {
 
     conn.execute(
         "INSERT INTO tasks (id, title, description, task_type, priority, status, duration_seconds,
-            scheduled_time, recurrence_days, start_date, end_date, sort_order)
-         VALUES (?1, ?2, ?3, ?4, ?5, 'pending', ?6, ?7, ?8, ?9, ?10,
+            scheduled_time, recurrence_days, start_date, end_date, list_id, sort_order)
+         VALUES (?1, ?2, ?3, ?4, ?5, 'pending', ?6, ?7, ?8, ?9, ?10, ?11,
             (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM tasks WHERE task_type = ?4))",
         params![
             id,
@@ -49,6 +51,7 @@ pub fn create(conn: &Connection, input: &CreateTaskInput) -> AppResult<Task> {
             recurrence_json,
             input.start_date,
             input.end_date,
+            input.list_id,
         ],
     )?;
 
@@ -64,7 +67,9 @@ pub fn update(conn: &Connection, input: &UpdateTaskInput) -> AppResult<Task> {
     let affected = conn.execute(
         "UPDATE tasks SET title = ?1, description = ?2, priority = ?3, duration_seconds = ?4,
             scheduled_time = ?5, recurrence_days = ?6, start_date = ?7, end_date = ?8,
-            status = ?9, updated_at = datetime('now')
+            status = ?9, list_id = COALESCE(?11, list_id),
+            completed_at = CASE WHEN ?9 = 'completed' THEN COALESCE(completed_at, datetime('now')) ELSE NULL END,
+            updated_at = datetime('now')
          WHERE id = ?10",
         params![
             input.title,
@@ -77,6 +82,7 @@ pub fn update(conn: &Connection, input: &UpdateTaskInput) -> AppResult<Task> {
             input.end_date,
             input.status.as_str(),
             input.id,
+            input.list_id,
         ],
     )?;
 
@@ -89,7 +95,9 @@ pub fn update(conn: &Connection, input: &UpdateTaskInput) -> AppResult<Task> {
 
 pub fn set_status(conn: &Connection, id: &str, status: TaskStatus) -> AppResult<()> {
     let affected = conn.execute(
-        "UPDATE tasks SET status = ?1, updated_at = datetime('now') WHERE id = ?2",
+        "UPDATE tasks SET status = ?1,
+            completed_at = CASE WHEN ?1 = 'completed' THEN COALESCE(completed_at, datetime('now')) ELSE NULL END,
+            updated_at = datetime('now') WHERE id = ?2",
         params![status.as_str(), id],
     )?;
     if affected == 0 {
@@ -144,5 +152,40 @@ pub fn search(conn: &Connection, query: &str) -> AppResult<Vec<Task>> {
         "SELECT * FROM tasks WHERE status != 'cancelled' AND (title LIKE ?1 OR description LIKE ?1) LIMIT 10",
     )?;
     let tasks = stmt.query_map(params![like], row_to_task)?.collect::<Result<Vec<_>, _>>()?;
+    Ok(tasks)
+}
+
+/// One-off tasks still worth showing: open ones, plus finished ones ticked
+/// less than `visible_hours` ago (they then quietly leave their list).
+pub fn list_visible_single(conn: &Connection, visible_hours: i64) -> AppResult<Vec<Task>> {
+    let cutoff = format!("-{} hours", visible_hours.max(0));
+    let mut stmt = conn.prepare(
+        "SELECT * FROM tasks
+         WHERE task_type = 'single' AND status != 'cancelled'
+           AND (status != 'completed' OR completed_at IS NULL OR completed_at >= datetime('now', ?1))
+         ORDER BY sort_order, created_at",
+    )?;
+    let tasks = stmt
+        .query_map(params![cutoff], row_to_task)?
+        .collect::<Result<Vec<_>, _>>()?;
+    Ok(tasks)
+}
+
+pub fn set_list(conn: &Connection, id: &str, list_id: &str) -> AppResult<()> {
+    let affected = conn.execute(
+        "UPDATE tasks SET list_id = ?1, updated_at = datetime('now') WHERE id = ?2",
+        params![list_id, id],
+    )?;
+    if affected == 0 {
+        return Err(AppError::NotFound);
+    }
+    Ok(())
+}
+
+/// Every daily/weekly task ever created (cancelled ones included, they may
+/// still have history) — the input for the streak computation.
+pub fn list_recurring(conn: &Connection) -> AppResult<Vec<Task>> {
+    let mut stmt = conn.prepare("SELECT * FROM tasks WHERE task_type IN ('daily', 'weekly')")?;
+    let tasks = stmt.query_map([], row_to_task)?.collect::<Result<Vec<_>, _>>()?;
     Ok(tasks)
 }

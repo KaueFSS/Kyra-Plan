@@ -20,6 +20,12 @@ pub fn update_task(db: State<Db>, input: UpdateTaskInput) -> AppResult<Task> {
 }
 
 #[tauri::command]
+pub fn toggle_single_task(db: State<Db>, id: String) -> AppResult<Task> {
+    let conn = db.lock()?;
+    task_service::toggle_single_task(&conn, &id)
+}
+
+#[tauri::command]
 pub fn delete_task(db: State<Db>, id: String) -> AppResult<()> {
     let conn = db.lock()?;
     task_service::delete_task(&conn, &id)

@@ -4,6 +4,8 @@ pub mod event_service;
 pub mod notification_service;
 pub mod scheduler;
 pub mod search_service;
+pub mod streak_service;
+pub mod task_list_service;
 pub mod task_service;
 pub mod time_util;
 pub mod timer_service;

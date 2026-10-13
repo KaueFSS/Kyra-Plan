@@ -191,6 +191,13 @@ pub fn run() {
             commands::dashboard::delete_dashboard_tab,
             commands::dashboard::reorder_dashboard_tabs,
             commands::dashboard::restore_home_tab,
+            commands::tasks::toggle_single_task,
+            commands::task_lists::list_task_lists,
+            commands::task_lists::create_task_list,
+            commands::task_lists::update_task_list,
+            commands::task_lists::delete_task_list,
+            commands::task_lists::move_task_to_list,
+            commands::task_lists::get_streak,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

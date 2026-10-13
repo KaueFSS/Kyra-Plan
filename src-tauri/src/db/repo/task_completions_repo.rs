@@ -49,3 +49,12 @@ pub fn set_completed(conn: &Connection, task_id: &str, cycle_date: &str, complet
 
     Ok(find_for_date(conn, task_id, cycle_date)?.expect("row was just inserted or updated"))
 }
+
+/// Every (task, day) that was completed — the history the streak reads.
+pub fn completed_pairs(conn: &Connection) -> AppResult<std::collections::HashSet<(String, String)>> {
+    let mut stmt = conn.prepare("SELECT task_id, cycle_date FROM task_completions WHERE completed = 1")?;
+    let pairs = stmt
+        .query_map([], |r| Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?)))?
+        .collect::<Result<_, _>>()?;
+    Ok(pairs)
+}

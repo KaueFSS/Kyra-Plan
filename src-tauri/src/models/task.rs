@@ -106,6 +106,10 @@ pub struct Task {
     pub start_date: String,
     pub end_date: Option<String>,
     pub sort_order: i64,
+    /// One-off tasks belong to a named list; recurring tasks have none.
+    pub list_id: Option<String>,
+    /// When a one-off task was ticked (UTC, SQLite datetime format).
+    pub completed_at: Option<String>,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -122,6 +126,8 @@ pub struct CreateTaskInput {
     pub recurrence_days: Option<Vec<u8>>,
     pub start_date: String,
     pub end_date: Option<String>,
+    #[serde(default)]
+    pub list_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -137,6 +143,8 @@ pub struct UpdateTaskInput {
     pub start_date: String,
     pub end_date: Option<String>,
     pub status: TaskStatus,
+    #[serde(default)]
+    pub list_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

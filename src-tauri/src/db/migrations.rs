@@ -17,6 +17,10 @@ const MIGRATIONS: &[(&str, &str)] = &[
     ("0008_task_sort_order", include_str!("sql/0008_task_sort_order.sql")),
     ("0009_recolor_palette", include_str!("sql/0009_recolor_palette.sql")),
     ("0010_dashboard_tabs", include_str!("sql/0010_dashboard_tabs.sql")),
+    (
+        "0011_task_lists_and_streaks",
+        include_str!("sql/0011_task_lists_and_streaks.sql"),
+    ),
 ];
 
 pub fn run(conn: &Connection) -> Result<()> {

@@ -17,6 +17,7 @@ fn row_to_settings(row: &Row) -> rusqlite::Result<Settings> {
         timer_default_preset_seconds: row.get("timer_default_preset_seconds")?,
         launch_on_startup: row.get::<_, i64>("launch_on_startup")? != 0,
         minimize_to_tray: row.get::<_, i64>("minimize_to_tray")? != 0,
+        done_tasks_visible_hours: row.get("done_tasks_visible_hours")?,
         updated_at: row.get("updated_at")?,
     })
 }
@@ -30,7 +31,8 @@ pub fn update(conn: &Connection, input: &UpdateSettingsInput) -> AppResult<Setti
         "UPDATE settings SET theme = ?1, accent_color = ?2, ui_density = ?3, time_format = ?4,
             week_start = ?5, timezone = ?6, daily_reset_time = ?7, daily_reset_timezone = ?8,
             task_notifications_enabled = ?9, timer_sound_enabled = ?10, timer_default_preset_seconds = ?11,
-            launch_on_startup = ?12, minimize_to_tray = ?13, updated_at = datetime('now') WHERE id = 1",
+            launch_on_startup = ?12, minimize_to_tray = ?13, done_tasks_visible_hours = ?14,
+            updated_at = datetime('now') WHERE id = 1",
         params![
             input.theme,
             input.accent_color,
@@ -45,6 +47,7 @@ pub fn update(conn: &Connection, input: &UpdateSettingsInput) -> AppResult<Setti
             input.timer_default_preset_seconds,
             input.launch_on_startup as i64,
             input.minimize_to_tray as i64,
+            input.done_tasks_visible_hours.clamp(0, 24 * 7),
         ],
     )?;
     get(conn)

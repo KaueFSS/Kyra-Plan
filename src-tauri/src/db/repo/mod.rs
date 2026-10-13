@@ -3,6 +3,7 @@ pub mod dashboard_tabs_repo;
 pub mod events_repo;
 pub mod settings_repo;
 pub mod task_completions_repo;
+pub mod task_lists_repo;
 pub mod task_sessions_repo;
 pub mod tasks_repo;
 pub mod timer_sessions_repo;
