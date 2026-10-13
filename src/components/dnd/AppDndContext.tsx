@@ -22,12 +22,19 @@ import { clockToMinutes } from "../../utils/timeHints";
 import { minutesToClock, snap } from "../../utils/timetableLayout";
 import { playSound } from "../../utils/sounds";
 import { visualDailyOrder } from "../tasks/SortableDailyList";
+import { orderedListTasks } from "../../utils/listOrder";
 
 /** Pointer-first detection (drop where the cursor is), falling back to
  * rectangle overlap so dropping near an edge still lands somewhere. */
 const collisionDetection: CollisionDetection = (args) => {
   const pointerHits = pointerWithin(args);
-  return pointerHits.length > 0 ? pointerHits : rectIntersection(args);
+  if (pointerHits.length === 0) return rectIntersection(args);
+  // A to-do row sits inside its list's drop area: the row (more specific) comes first.
+  const rank = (hit: (typeof pointerHits)[number]) => {
+    const data = args.droppableContainers.find((c) => c.id === hit.id)?.data.current as DropTarget | undefined;
+    return data?.accepts === "list-task" && data.taskId ? 1 : 0;
+  };
+  return [...pointerHits].sort((a, b) => rank(b) - rank(a));
 };
 
 interface AppDndContextProps {
@@ -45,7 +52,7 @@ interface AppDndContextProps {
 export function AppDndContext({ children, eventRange }: AppDndContextProps) {
   const [active, setActive] = useState<DragPayload | null>(null);
   const reschedule = useScheduleStore((s) => s.reschedule);
-  const { reorderDaily, moveWeeklyTaskDay, moveToList, setDueDate, daily } = useTaskStore();
+  const { reorderDaily, moveWeeklyTaskDay, moveToList, setDueDate, reorderSingle, single, daily } = useTaskStore();
   const moveEventToDate = useCalendarStore((s) => s.moveEventToDate);
   const { clocks, reorder: reorderClocks } = useWorldClockStore();
 
@@ -100,9 +107,21 @@ export function AppDndContext({ children, eventRange }: AppDndContextProps) {
         break;
       }
       case "list-task": {
-        // Onto another list widget: move it there. Onto a calendar day: that becomes its due date.
-        if (target?.accepts === "list-task" && target.listId !== payload.listId) void moveToList(payload.taskId, target.listId);
-        if (target?.accepts === "event") void setDueDate(payload.taskId, target.date);
+        // Onto a row: take its place (same list: reorder; other list: move there, above it).
+        // Onto empty space of a list: to the end of it. Onto a calendar day: that becomes the due date.
+        if (target?.accepts === "event") {
+          void setDueDate(payload.taskId, target.date);
+          break;
+        }
+        if (target?.accepts !== "list-task" || target.taskId === payload.taskId) break;
+        if (target.listId !== payload.listId) {
+          void moveToList(payload.taskId, target.listId, target.taskId);
+          break;
+        }
+        const ids = orderedListTasks(single, payload.listId).map((t) => t.id);
+        const from = ids.indexOf(payload.taskId);
+        const to = target.taskId ? ids.indexOf(target.taskId) : ids.length - 1;
+        if (from >= 0 && to >= 0 && from !== to) void reorderSingle(arrayMove(ids, from, to));
         break;
       }
       case "world-clock": {

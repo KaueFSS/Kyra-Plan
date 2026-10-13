@@ -3,6 +3,7 @@ import { tasksService } from "../services/tasksService";
 import type { CreateTaskInput, Task, TaskWithProgress, UpdateTaskInput } from "../types/task";
 import { ApiError } from "../services/tauri";
 import { reportError } from "./toastStore";
+import { orderedListTasks } from "../utils/listOrder";
 import { playSound } from "../utils/sounds";
 
 export function taskToUpdateInput(task: Task, overrides: Partial<UpdateTaskInput> = {}): UpdateTaskInput {
@@ -37,7 +38,10 @@ interface TaskState {
   toggleCompletion: (taskId: string) => Promise<void>;
   /** Ticks/unticks a one-off task (optimistic). */
   toggleSingle: (taskId: string) => Promise<void>;
-  moveToList: (taskId: string, listId: string) => Promise<void>;
+  /** Moves a one-off task to another list; `beforeTaskId` puts it right above that task. */
+  moveToList: (taskId: string, listId: string, beforeTaskId?: string) => Promise<void>;
+  /** Saves the manual order of one-off tasks (ids in the order they should appear). */
+  reorderSingle: (orderedIds: string[]) => Promise<void>;
   /** Due date of a one-off task (kept in `endDate`; null = no date). */
   setDueDate: (taskId: string, date: string | null) => Promise<void>;
   reorderDaily: (orderedIds: string[]) => Promise<void>;
@@ -134,10 +138,29 @@ export const useTaskStore = create<TaskState>((set, get) => ({
     await get().loadAll();
   },
 
-  moveToList: async (taskId, listId) => {
+  reorderSingle: async (orderedIds) => {
+    const position = new Map(orderedIds.map((id, i) => [id, i]));
+    set({ single: get().single.map((t) => (position.has(t.id) ? { ...t, sortOrder: position.get(t.id)! } : t)) });
+    try {
+      await tasksService.reorderTasks(orderedIds);
+    } catch (err) {
+      reportError(err, "Não foi possível salvar a ordem.");
+      await get().loadAll();
+    }
+  },
+
+  moveToList: async (taskId, listId, beforeTaskId) => {
     set({ single: get().single.map((t) => (t.id === taskId ? { ...t, listId } : t)) });
     try {
       await tasksService.moveTaskToList(taskId, listId);
+      if (beforeTaskId) {
+        const ids = orderedListTasks(get().single, listId)
+          .map((t) => t.id)
+          .filter((id) => id !== taskId);
+        const at = ids.indexOf(beforeTaskId);
+        ids.splice(at < 0 ? ids.length : at, 0, taskId);
+        await get().reorderSingle(ids);
+      }
     } catch (err) {
       reportError(err, "Não foi possível mover a tarefa.");
     }

@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { DateTime } from "luxon";
-import { useDraggable, useDroppable } from "@dnd-kit/core";
+import { useDroppable } from "@dnd-kit/core";
+import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Check, GripVertical, ListTodo, MoreHorizontal, Plus, Trash2 } from "../ui/icons";
 import { WidgetCard, IconAction } from "../ui/WidgetCard";
 import { InlineAdd } from "../ui/InlineAdd";
@@ -13,12 +15,13 @@ import { useTaskListStore } from "../../stores/taskListStore";
 import { useSettingsStore, settingsToUpdateInput } from "../../stores/settingsStore";
 import { useDashboardStore } from "../../stores/dashboardStore";
 import { createListTask } from "../../stores/smartActions";
+import { orderByDueDate, orderedListTasks } from "../../utils/listOrder";
 import { useLiveTick } from "../../hooks/useLiveTick";
 import { useClickGuard } from "../../hooks/useClickGuard";
 import { describeTask } from "../../utils/naturalLanguage";
 import { durationLabel } from "../../utils/timeHints";
 import { classNames } from "../../utils/format";
-import type { DragPayload, DropTarget } from "../dnd/types";
+import type { DropTarget } from "../dnd/types";
 import type { TaskWithProgress } from "../../types/task";
 import type { TaskList } from "../../types/taskList";
 
@@ -53,6 +56,7 @@ export function TaskListWidget({ widgetId, listId }: { widgetId: string; listId?
   const loaded = useTaskListStore((s) => s.loaded);
   const single = useTaskStore((s) => s.single);
   const toggleSingle = useTaskStore((s) => s.toggleSingle);
+  const reorderSingle = useTaskStore((s) => s.reorderSingle);
   const settings = useSettingsStore((s) => s.settings);
   const [editing, setEditing] = useState<TaskEditTarget | null>(null);
   const [menu, setMenu] = useState<PopoverAnchor | null>(null);
@@ -69,20 +73,11 @@ export function TaskListWidget({ widgetId, listId }: { widgetId: string; listId?
   const target: DropTarget = { accepts: "list-task", listId: list?.id ?? "" };
   const { setNodeRef, isOver } = useDroppable({ id: `task-list-${widgetId}`, data: target, disabled: !list });
 
-  const tasks = single
-    .filter((t) => t.listId === list?.id)
-    .filter((t) => {
-      const leaves = leavesAt(t, hours);
-      return !leaves || leaves > now;
-    })
-    .sort((a, b) => {
-      const doneA = a.status === "completed" ? 1 : 0;
-      const doneB = b.status === "completed" ? 1 : 0;
-      if (doneA !== doneB) return doneA - doneB;
-      const dueA = `${a.endDate ?? "9999"} ${a.scheduledTime ?? "99"}`;
-      const dueB = `${b.endDate ?? "9999"} ${b.scheduledTime ?? "99"}`;
-      return dueA.localeCompare(dueB) || a.createdAt.localeCompare(b.createdAt);
-    });
+  // The user's own order (drag to rearrange); ticked tasks sink to the bottom.
+  const tasks = orderedListTasks(single, list?.id).filter((t) => {
+    const leaves = leavesAt(t, hours);
+    return !leaves || leaves > now;
+  });
   const open = tasks.filter((t) => t.status !== "completed").length;
   const overdue = tasks.filter((t) => t.status !== "completed" && t.endDate && t.endDate < now.toISODate()!).length;
 
@@ -118,21 +113,24 @@ export function TaskListWidget({ widgetId, listId }: { widgetId: string; listId?
             Escreva abaixo, ex.: “Pagar a conta amanhã 10h”. Arraste tarefas entre listas ou para um dia do calendário.
           </p>
         )}
-        {tasks.map((task) => (
-          <TaskRow
-            key={task.id}
-            task={task}
-            list={list}
-            now={now}
-            hours={hours}
-            onToggle={() => toggleSingle(task.id)}
-            onEdit={(anchor) => setEditing({ task, anchor })}
-          />
-        ))}
+        <SortableContext items={tasks.map((t) => `list-task-${t.id}`)} strategy={verticalListSortingStrategy}>
+          {tasks.map((task) => (
+            <TaskRow
+              key={task.id}
+              task={task}
+              list={list}
+              now={now}
+              hours={hours}
+              onToggle={() => toggleSingle(task.id)}
+              onEdit={(anchor) => setEditing({ task, anchor })}
+            />
+          ))}
+        </SortableContext>
       </div>
 
       <div className="mt-2 shrink-0">
         <InlineAdd
+          kind="task"
           label="Adicionar tarefa"
           placeholder="Ex.: Pagar a conta amanhã 10h"
           describe={(p) => describeTask(p, p.date ? DateTime.fromISO(p.date).setLocale("pt-BR").toFormat("ccc dd/MM") : undefined)}
@@ -141,7 +139,7 @@ export function TaskListWidget({ widgetId, listId }: { widgetId: string; listId?
       </div>
 
       <TaskEditorPopover target={editing} onClose={() => setEditing(null)} />
-      <ListMenu anchor={menu} onClose={() => setMenu(null)} list={list} widgetId={widgetId} />
+      <ListMenu anchor={menu} onClose={() => setMenu(null)} list={list} widgetId={widgetId} onSortByDate={() => reorderSingle(orderByDueDate(tasks.filter((t) => t.status !== "completed")).concat(tasks.filter((t) => t.status === "completed")).map((t) => t.id))} />
     </WidgetCard>
   );
 }
@@ -161,10 +159,16 @@ function TaskRow({
   onToggle: () => void;
   onEdit: (anchor: PopoverAnchor) => void;
 }) {
-  const payload: DragPayload = { type: "list-task", taskId: task.id, listId: list.id, title: task.title, color: list.color };
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: `list-task-${task.id}`, data: payload });
-  const swallowClick = useClickGuard(isDragging);
   const done = task.status === "completed";
+  // Carries both the drag payload and the drop descriptor (like the daily list).
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging, isOver, active } = useSortable({
+    id: `list-task-${task.id}`,
+    disabled: done,
+    data: { type: "list-task", accepts: "list-task", taskId: task.id, listId: list.id, title: task.title, color: list.color },
+  });
+  const swallowClick = useClickGuard(isDragging);
+  // Dragging in from another list: show where it will land.
+  const incoming = isOver && !isDragging && (active?.data.current as { listId?: string } | undefined)?.listId !== list.id;
   const due = dueLabel(task, now);
   const leaves = leavesAt(task, hours);
 
@@ -183,18 +187,21 @@ function TaskRow({
   return (
     <div
       ref={setNodeRef}
+      {...(done ? {} : listeners)}
+      {...attributes}
+      style={{ transform: CSS.Translate.toString(transform), transition }}
       className={classNames(
-        "group flex items-center gap-2 rounded-lg px-1 py-1.5 transition-colors hover:bg-surface-2",
+        "group relative flex items-center gap-2 rounded-lg px-1 py-1.5 outline-none hover:bg-surface-2",
+        !done && "cursor-grab active:cursor-grabbing",
         done && !celebrate && "opacity-55",
         celebrate && "ff-flash",
-        isDragging && "opacity-30",
+        isDragging && "z-10 opacity-40",
+        incoming && "before:absolute before:inset-x-1 before:-top-px before:h-0.5 before:rounded-full before:bg-accent-500",
       )}
     >
       <span
-        {...listeners}
-        {...attributes}
-        className="flex h-5 w-3.5 shrink-0 cursor-grab items-center justify-center text-text-muted opacity-0 transition-opacity group-hover:opacity-100 active:cursor-grabbing"
-        title="Arraste para outra lista ou para um dia do calendário"
+        className="flex h-5 w-3.5 shrink-0 items-center justify-center text-text-muted opacity-0 transition-opacity group-hover:opacity-100"
+        title={done ? undefined : "Arraste para reordenar, mudar de lista ou escolher um dia do calendário"}
       >
         <GripVertical size={12} />
       </span>
@@ -247,7 +254,19 @@ function TaskRow({
 }
 
 /** Rename / recolor / switch / create / delete — everything about this list in one place. */
-function ListMenu({ anchor, onClose, list, widgetId }: { anchor: PopoverAnchor | null; onClose: () => void; list: TaskList; widgetId: string }) {
+function ListMenu({
+  anchor,
+  onClose,
+  list,
+  widgetId,
+  onSortByDate,
+}: {
+  anchor: PopoverAnchor | null;
+  onClose: () => void;
+  list: TaskList;
+  widgetId: string;
+  onSortByDate: () => void;
+}) {
   const { lists, create, update, remove } = useTaskListStore();
   const { settings, update: updateSettings } = useSettingsStore();
   const setWidgetList = useDashboardStore((s) => s.setWidgetList);
@@ -315,6 +334,16 @@ function ListMenu({ anchor, onClose, list, widgetId }: { anchor: PopoverAnchor |
             </div>
           </div>
         )}
+
+        <button
+          className="ff-btn-secondary w-full py-1.5 text-xs"
+          onClick={() => {
+            onSortByDate();
+            onClose();
+          }}
+        >
+          Ordenar por data
+        </button>
 
         <button className="ff-btn-secondary w-full py-1.5 text-xs" onClick={() => void newList()}>
           <Plus size={13} /> Nova lista neste widget

@@ -18,4 +18,5 @@ export type DropTarget =
   | { accepts: "event"; date: string }
   | { accepts: "daily-task"; taskId: string }
   | { accepts: "world-clock"; clockId: string }
-  | { accepts: "list-task"; listId: string };
+  /** A to-do list; with `taskId` it is one row of it (drop here = take that place). */
+  | { accepts: "list-task"; listId: string; taskId?: string };
