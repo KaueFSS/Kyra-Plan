@@ -8,7 +8,8 @@ export type WidgetType =
   | "time"
   | "world-clock"
   | "alarms"
-  | "today";
+  | "today"
+  | "tasks";
 
 /** A widget's place on a tab's 12x12 grid. */
 export interface WidgetPlacement {
@@ -18,6 +19,8 @@ export interface WidgetPlacement {
   y: number;
   w: number;
   h: number;
+  /** For "tasks" widgets: which task list this copy shows. */
+  listId?: string;
 }
 
 /** As stored by the backend: `layout` is a JSON string of `WidgetPlacement[]`. */

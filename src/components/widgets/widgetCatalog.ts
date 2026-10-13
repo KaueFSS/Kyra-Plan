@@ -1,5 +1,5 @@
 import type { IconType } from "../ui/icons";
-import { AlarmClock, CalendarClock, CalendarDays, CalendarRange, CheckSquare, Clock, Globe2, ListChecks, Timeline, Timer } from "../ui/icons";
+import { AlarmClock, CalendarClock, CalendarDays, CalendarRange, CheckSquare, Clock, Globe2, ListChecks, ListTodo, Timeline, Timer } from "../ui/icons";
 import type { WidgetType } from "../../types/dashboard";
 
 export interface WidgetMeta {
@@ -15,6 +15,7 @@ export const WIDGET_CATALOG: WidgetMeta[] = [
   { type: "calendar", label: "Calendário", description: "Mês com os dias que têm eventos", icon: CalendarDays },
   { type: "events", label: "Eventos", description: "Eventos do dia escolhido e próximos", icon: CalendarClock },
   { type: "schedule", label: "Programação Semanal", description: "Grade de horários da semana", icon: CalendarRange },
+  { type: "tasks", label: "Lista de tarefas", description: "Tarefas avulsas · dá para ter várias listas", icon: ListTodo },
   { type: "daily-tasks", label: "Tarefas Diárias", description: "Hábitos que reiniciam todo dia", icon: CheckSquare },
   { type: "weekly-tasks", label: "Tarefas Semanais", description: "Quadro com um dia por coluna", icon: ListChecks },
   { type: "focus", label: "Foco", description: "Tarefa em andamento, timer e cronômetro", icon: Timer },

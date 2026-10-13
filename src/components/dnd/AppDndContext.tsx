@@ -18,6 +18,9 @@ import { useTaskStore } from "../../stores/taskStore";
 import { useCalendarStore } from "../../stores/calendarStore";
 import { useWorldClockStore } from "../../stores/worldClockStore";
 import type { DragPayload, DropTarget } from "./types";
+import { clockToMinutes } from "../../utils/timeHints";
+import { minutesToClock, snap } from "../../utils/timetableLayout";
+import { playSound } from "../../utils/sounds";
 import { visualDailyOrder } from "../tasks/SortableDailyList";
 
 /** Pointer-first detection (drop where the cursor is), falling back to
@@ -42,7 +45,7 @@ interface AppDndContextProps {
 export function AppDndContext({ children, eventRange }: AppDndContextProps) {
   const [active, setActive] = useState<DragPayload | null>(null);
   const reschedule = useScheduleStore((s) => s.reschedule);
-  const { reorderDaily, moveWeeklyTaskDay, daily } = useTaskStore();
+  const { reorderDaily, moveWeeklyTaskDay, moveToList, setDueDate, daily } = useTaskStore();
   const moveEventToDate = useCalendarStore((s) => s.moveEventToDate);
   const { clocks, reorder: reorderClocks } = useWorldClockStore();
 
@@ -57,19 +60,25 @@ export function AppDndContext({ children, eventRange }: AppDndContextProps) {
     setActive((event.active.data.current as DragPayload | undefined) ?? null);
   };
 
-  const onDragEnd = ({ active: dragged, over }: DragEndEvent) => {
+  const onDragEnd = ({ active: dragged, over, delta }: DragEndEvent) => {
     setActive(null);
     const payload = dragged.data.current as DragPayload | undefined;
     const target = over?.data.current as DropTarget | undefined;
     if (!payload) return;
+    if (target) playSound("drop");
 
     switch (payload.type) {
       case "schedule-block": {
-        // Dropping on a timetable cell takes that cell's day and time slot.
-        if (target?.accepts !== "schedule-cell") break;
+        // Dropped on a day column: that day, shifted by how far it moved vertically (15-min steps).
+        if (target?.accepts !== "schedule-day") break;
         const { block } = payload;
-        const moved = target.day !== block.dayOfWeek || target.startTime !== block.startTime || target.endTime !== block.endTime;
-        if (moved) void reschedule(block.id, target.day, target.startTime, target.endTime);
+        const start = clockToMinutes(block.startTime);
+        const length = clockToMinutes(block.endTime) - start;
+        const moved = target.minutePx ? delta.y / target.minutePx : 0;
+        const shifted = moved ? Math.max(0, Math.min(24 * 60 - length, snap(start + moved, 15))) : start;
+        const startTime = minutesToClock(shifted);
+        const endTime = minutesToClock(shifted + length);
+        if (target.day !== block.dayOfWeek || startTime !== block.startTime) void reschedule(block.id, target.day, startTime, endTime);
         break;
       }
       case "weekly-task": {
@@ -88,6 +97,12 @@ export function AppDndContext({ children, eventRange }: AppDndContextProps) {
         const from = ids.indexOf(payload.taskId);
         const to = ids.indexOf(target.taskId);
         if (from >= 0 && to >= 0) void reorderDaily(arrayMove(ids, from, to));
+        break;
+      }
+      case "list-task": {
+        // Onto another list widget: move it there. Onto a calendar day: that becomes its due date.
+        if (target?.accepts === "list-task" && target.listId !== payload.listId) void moveToList(payload.taskId, target.listId);
+        if (target?.accepts === "event") void setDueDate(payload.taskId, target.date);
         break;
       }
       case "world-clock": {
@@ -129,7 +144,7 @@ function DragPreview({ payload }: { payload: DragPayload }) {
       ? payload.occurrence.color
       : payload.type === "schedule-block"
         ? payload.block.color
-        : payload.type === "weekly-task"
+        : payload.type === "weekly-task" || payload.type === "list-task"
           ? payload.color
           : "var(--color-accent-500)";
 

@@ -14,13 +14,15 @@ import { TimeWidget } from "../dashboard/TimeWidget";
 import { ClockWidget } from "../dashboard/ClockWidget";
 import { AlarmsWidget } from "../dashboard/AlarmsWidget";
 import { TodayTimelineWidget } from "../agenda/TodayTimelineWidget";
-import type { WidgetType } from "../../types/dashboard";
+import { TaskListWidget } from "../tasks/TaskListWidget";
+import type { WidgetPlacement, WidgetType } from "../../types/dashboard";
 
 /**
  * Draws one widget by type, pulling its data from the shared stores — so
  * the same widget shows the same live data on every tab it's placed on.
  */
-export function WidgetRenderer({ type, range }: { type: WidgetType; range: { start: string; end: string } }) {
+export function WidgetRenderer({ widget, range }: { widget: WidgetPlacement; range: { start: string; end: string } }) {
+  const type: WidgetType = widget.type;
   const daily = useTaskStore((s) => s.daily);
   const weekly = useTaskStore((s) => s.weekly);
   const occurrences = useCalendarStore((s) => s.occurrences);
@@ -31,7 +33,7 @@ export function WidgetRenderer({ type, range }: { type: WidgetType; range: { sta
 
   switch (type) {
     case "calendar":
-      return <MiniCalendarWidget occurrences={occurrences} selectedDate={selectedDate} onSelectDate={setSelectedDate} />;
+      return <MiniCalendarWidget selectedDate={selectedDate} onSelectDate={setSelectedDate} range={range} />;
     case "events":
       return <EventsWidget occurrences={occurrences} selectedDate={selectedDate} range={range} />;
     case "schedule":
@@ -50,6 +52,8 @@ export function WidgetRenderer({ type, range }: { type: WidgetType; range: { sta
       return <AlarmsWidget alarms={alarms} />;
     case "today":
       return <TodayTimelineWidget />;
+    case "tasks":
+      return <TaskListWidget widgetId={widget.i} listId={widget.listId} />;
     default:
       return null;
   }

@@ -10,6 +10,7 @@ import { useDashboardStore } from "../stores/dashboardStore";
 import { AppDndContext } from "../components/dnd/AppDndContext";
 import { TabBar } from "../components/widgets/TabBar";
 import { WidgetGrid } from "../components/widgets/WidgetGrid";
+import { StatusBar } from "../components/agenda/StatusBar";
 
 /**
  * One-screen HUD organised in tabs ("guias"), Obsidian-style: the "Início"
@@ -61,6 +62,7 @@ export function DashboardPage() {
           </AppDndContext>
         )}
       </div>
+      <StatusBar />
     </div>
   );
 }

@@ -8,6 +8,7 @@ import {
   DEFAULT_APPEARANCE,
   TONES,
   appearanceFromSettings,
+  effectiveMode,
   buildPalette,
   sameAppearance,
   type Appearance,
@@ -25,6 +26,7 @@ export function AppearancePopover({ anchor, onClose }: { anchor: PopoverAnchor |
 
   const current = appearanceFromSettings(settings);
   const isPresetAccent = ACCENTS.some((a) => a.hex === current.accent);
+  const customTone = !TONES.some((t) => t.id === current.tone);
 
   return (
     <Popover anchor={anchor} onClose={onClose} title="Cores do app" width={360}>
@@ -55,16 +57,18 @@ export function AppearancePopover({ anchor, onClose }: { anchor: PopoverAnchor |
             ).map(({ mode, label, icon: Icon }) => (
               <button
                 key={mode}
-                onClick={() => setAppearance({ mode })}
+                // With a custom background the mode follows its brightness; picking a mode goes back to the preset tones.
+                onClick={() => setAppearance(customTone ? { mode, tone: "graphite" } : { mode })}
                 className={classNames(
                   "flex items-center justify-center gap-1.5 rounded-md py-1.5 text-sm transition-colors",
-                  current.mode === mode ? "bg-accent-500 font-medium text-white" : "text-text-secondary hover:text-text-primary",
+                  effectiveMode(current) === mode ? "bg-accent-500 font-medium text-white" : "text-text-secondary hover:text-text-primary",
                 )}
               >
                 <Icon size={14} /> {label}
               </button>
             ))}
           </div>
+          {customTone && <p className="mt-1 text-[0.75rem] text-text-muted">Com fundo personalizado, claro/escuro segue a cor escolhida.</p>}
         </div>
 
         <div>
@@ -82,6 +86,26 @@ export function AppearancePopover({ anchor, onClose }: { anchor: PopoverAnchor |
                 />
               );
             })}
+            <label
+              title="Escolher qualquer cor de fundo"
+              className={classNames(
+                "relative h-7 w-7 cursor-pointer rounded-full ring-offset-2 ring-offset-surface-1 transition-shadow",
+                customTone ? "ring-2 ring-text-primary" : "hover:ring-2 hover:ring-border-strong",
+              )}
+              style={{
+                background: customTone
+                  ? current.tone
+                  : "conic-gradient(#7f1d1d, #78350f, #14532d, #134e4a, #1e3a8a, #581c87, #7f1d1d)",
+              }}
+            >
+              <input
+                type="color"
+                aria-label="Escolher qualquer cor de fundo"
+                value={customTone ? current.tone : "#1c2433"}
+                onChange={(e) => setAppearance({ tone: e.target.value })}
+                className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+              />
+            </label>
           </div>
         </div>
 
@@ -114,12 +138,12 @@ export function AppearancePopover({ anchor, onClose }: { anchor: PopoverAnchor |
               />
             </label>
           </div>
-          <p className="mt-1.5 text-[0.75rem] text-text-muted">Qualquer cor vale — o app ajusta o brilho para ficar confortável de ler.</p>
+          <p className="mt-1.5 text-[0.75rem] text-text-muted">Fundo e destaque aceitam qualquer cor — o app ajusta o brilho para ficar confortável de ler.</p>
         </div>
 
         {!sameAppearance(current, DEFAULT_APPEARANCE) && (
-          <button className="ff-btn-ghost w-full py-1.5 text-xs" onClick={() => setAppearance(DEFAULT_APPEARANCE)}>
-            <RotateCcw size={13} /> Voltar ao visual padrão
+          <button className="ff-btn-secondary w-full py-1.5 text-xs" onClick={() => setAppearance(DEFAULT_APPEARANCE)}>
+            <RotateCcw size={13} /> Usar cores padrão
           </button>
         )}
       </div>

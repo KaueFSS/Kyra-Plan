@@ -10,7 +10,7 @@ import { FieldLabel } from "../ui/FormControls";
 import { TAB_TEMPLATES } from "../../utils/gridLayout";
 import { WIDGET_CATALOG } from "./widgetCatalog";
 import { AppearancePopover } from "./AppearancePopover";
-import { NowPill } from "../agenda/NowPill";
+import { StreakBadge } from "../streak/StreakBadge";
 import { classNames } from "../../utils/format";
 import type { DashboardTab } from "../../types/dashboard";
 
@@ -56,7 +56,7 @@ export function TabBar() {
         <Plus size={16} />
       </button>
 
-      <div className="flex min-w-0 flex-1 justify-center px-2">{!editing && <NowPill />}</div>
+      <div className="flex-1" />
 
       <div className="flex shrink-0 items-center gap-1.5">
         {editing ? (
@@ -75,6 +75,7 @@ export function TabBar() {
           </>
         ) : (
           <>
+            <StreakBadge />
             <button
               onClick={openSearch}
               className="flex h-8 w-8 items-center justify-center rounded-lg text-text-muted hover:bg-surface-2 hover:text-text-primary"
@@ -283,6 +284,7 @@ function NewTabPopover({ anchor, onClose }: { anchor: PopoverAnchor | null; onCl
 
 function CatalogPopover({ anchor, onClose, tab }: { anchor: PopoverAnchor | null; onClose: () => void; tab: DashboardTab | undefined }) {
   const addWidget = useDashboardStore((s) => s.addWidget);
+  const addTaskListWidget = useDashboardStore((s) => s.addTaskListWidget);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -295,13 +297,13 @@ function CatalogPopover({ anchor, onClose, tab }: { anchor: PopoverAnchor | null
     <Popover anchor={anchor} onClose={onClose} title="Adicionar widget" width={320}>
       <div className="max-h-[60vh] space-y-1 overflow-y-auto">
         {WIDGET_CATALOG.map((meta) => {
-          const already = present.has(meta.type);
+          const already = meta.type !== "tasks" && present.has(meta.type);
           return (
             <button
               key={meta.type}
               disabled={already}
-              onClick={() => {
-                const problem = addWidget(meta.type);
+              onClick={async () => {
+                const problem = meta.type === "tasks" ? await addTaskListWidget() : addWidget(meta.type);
                 if (problem) setError(problem);
                 else onClose();
               }}

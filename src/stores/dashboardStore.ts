@@ -2,6 +2,8 @@ import { create } from "zustand";
 import { dashboardService } from "../services/dashboardService";
 import { HOME_LAYOUT, findFreeSpot, parseLayout } from "../utils/gridLayout";
 import { ApiError } from "../services/tauri";
+import { useTaskListStore } from "./taskListStore";
+import { PALETTE } from "../components/ui/FormControls";
 import type { DashboardTab, DashboardTabRecord, WidgetPlacement, WidgetType } from "../types/dashboard";
 
 const ACTIVE_TAB_KEY = "focusflow.activeTab";
@@ -47,7 +49,14 @@ interface DashboardState {
   /** Replaces a tab's widgets locally right away and saves shortly after (debounced). */
   setWidgets: (id: string, widgets: WidgetPlacement[]) => void;
   /** Adds a widget at the first free spot; returns an error message if the tab is full. */
-  addWidget: (type: WidgetType) => string | null;
+  addWidget: (type: WidgetType, extra?: Pick<WidgetPlacement, "listId">) => string | null;
+  /**
+   * Adds another to-do list widget, showing a list that isn't on this tab
+   * yet — or a brand-new list when every list is already shown.
+   */
+  addTaskListWidget: () => Promise<string | null>;
+  /** Points a "tasks" widget at another list. */
+  setWidgetList: (widgetId: string, listId: string) => void;
   removeWidget: (widgetId: string) => void;
   resetHome: () => void;
 }
@@ -135,14 +144,39 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     );
   },
 
-  addWidget: (type) => {
+  addWidget: (type, extra) => {
     const tab = get().tabs.find((t) => t.id === get().activeTabId);
     if (!tab) return "Guia não encontrada.";
-    if (tab.widgets.some((w) => w.type === type)) return "Esse widget já está nesta guia.";
+    // To-do lists may repeat (each copy shows its own list); everything else once per tab.
+    if (type !== "tasks" && tab.widgets.some((w) => w.type === type)) return "Esse widget já está nesta guia.";
     const spot = findFreeSpot(tab.widgets, type);
     if (!spot) return "Sem espaço livre — diminua ou remova um widget.";
-    get().setWidgets(tab.id, [...tab.widgets, { i: `${type}-${Date.now().toString(36)}`, type, ...spot }]);
+    get().setWidgets(tab.id, [...tab.widgets, { i: `${type}-${Date.now().toString(36)}`, type, ...spot, ...extra }]);
     return null;
+  },
+
+  addTaskListWidget: async () => {
+    const tab = get().tabs.find((t) => t.id === get().activeTabId);
+    if (!tab) return "Guia não encontrada.";
+    if (!findFreeSpot(tab.widgets, "tasks")) return "Sem espaço livre — diminua ou remova um widget.";
+
+    const listStore = useTaskListStore.getState();
+    if (!listStore.loaded) await listStore.load();
+    const lists = useTaskListStore.getState().lists;
+    const shown = new Set(tab.widgets.filter((w) => w.type === "tasks").map((w) => w.listId ?? lists[0]?.id));
+    let listId = lists.find((l) => !shown.has(l.id))?.id;
+    if (!listId) {
+      const created = await listStore.create(`Lista ${lists.length + 1}`, PALETTE[lists.length % PALETTE.length]);
+      if (!created) return "Não foi possível criar a lista.";
+      listId = created.id;
+    }
+    return get().addWidget("tasks", { listId });
+  },
+
+  setWidgetList: (widgetId, listId) => {
+    const tab = get().tabs.find((t) => t.widgets.some((w) => w.i === widgetId));
+    if (!tab) return;
+    get().setWidgets(tab.id, tab.widgets.map((w) => (w.i === widgetId ? { ...w, listId } : w)));
   },
 
   removeWidget: (widgetId) => {

@@ -22,6 +22,7 @@ export const WIDGET_SIZES: Record<WidgetType, WidgetSize> = {
   "world-clock": { w: 3, h: 5, minW: 2, minH: 3 },
   alarms: { w: 3, h: 5, minW: 2, minH: 3 },
   today: { w: 3, h: 8, minW: 3, minH: 4 },
+  tasks: { w: 3, h: 6, minW: 2, minH: 3 },
 };
 
 function collides(a: Omit<WidgetPlacement, "i" | "type">, b: WidgetPlacement): boolean {
@@ -78,6 +79,12 @@ export const TAB_TEMPLATES: TabTemplate[] = [
     name: "Estudos",
     description: "Grade de horários, foco, tarefas do dia e da semana",
     widgets: [place("schedule", 0, 0, 8, 7), place("focus", 8, 0, 4, 4), place("daily-tasks", 8, 4, 4, 8), place("weekly-tasks", 0, 7, 8, 5)],
+  },
+  {
+    id: "lists",
+    name: "Listas",
+    description: "Tarefas avulsas, do dia e da semana lado a lado",
+    widgets: [place("tasks", 0, 0, 4, 12), place("daily-tasks", 4, 0, 4, 12), place("weekly-tasks", 8, 0, 4, 12)],
   },
   {
     id: "day",

@@ -5,7 +5,7 @@ import "react-grid-layout/css/styles.css";
 import { GripHorizontal, LayoutGrid, Plus, X } from "../ui/icons";
 import { useDashboardStore } from "../../stores/dashboardStore";
 import { useElementSize } from "../../hooks/useElementSize";
-import { GRID_COLS, GRID_ROWS, WIDGET_SIZES, findFreeSpot } from "../../utils/gridLayout";
+import { GRID_COLS, GRID_ROWS, WIDGET_SIZES } from "../../utils/gridLayout";
 import { WIDGET_CATALOG, WIDGET_META } from "./widgetCatalog";
 import { WidgetRenderer } from "./WidgetRenderer";
 import { classNames } from "../../utils/format";
@@ -73,7 +73,7 @@ export function WidgetGrid({ tab, editing, range }: WidgetGridProps) {
           style={{ height }}
           gridConfig={{ cols: GRID_COLS, rowHeight, margin: [gap, gap], containerPadding: [0, 0], maxRows: GRID_ROWS }}
           dragConfig={{ enabled: editing, bounded: true, handle: ".widget-drag-handle" }}
-          resizeConfig={{ enabled: editing, handles: ["se"] }}
+          resizeConfig={{ enabled: editing, handles: ["n", "s", "e", "w", "ne", "nw", "se", "sw"] }}
           compactor={compactor}
           onLayoutChange={onLayoutChange}
         >
@@ -104,7 +104,7 @@ function WidgetFrame({
   return (
     <div className="relative h-full min-h-0">
       <div className={classNames("h-full min-h-0", editing && "pointer-events-none select-none")}>
-        <WidgetRenderer type={widget.type} range={range} />
+        <WidgetRenderer widget={widget} range={range} />
       </div>
 
       {editing && (
@@ -124,7 +124,7 @@ function WidgetFrame({
             </button>
           </div>
           <p className="m-auto rounded-full bg-surface-2 px-3 py-1 text-center text-[0.75rem] text-text-secondary">
-            Arraste pela barra · redimensione pelo canto inferior
+            Arraste pela barra · puxe qualquer borda ou canto para redimensionar
           </p>
         </div>
       )}
@@ -134,13 +134,12 @@ function WidgetFrame({
 
 /** A blank tab invites you to add widgets right away. */
 function EmptyTab({ tab }: { tab: DashboardTab }) {
-  const { setWidgets } = useDashboardStore();
+  const { addWidget, addTaskListWidget } = useDashboardStore();
   const [error, setError] = useState<string | null>(null);
 
-  const add = (type: WidgetPlacement["type"]) => {
-    const spot = findFreeSpot(tab.widgets, type);
-    if (!spot) return setError("Sem espaço livre.");
-    setWidgets(tab.id, [...tab.widgets, { i: `${type}-${Date.now().toString(36)}`, type, ...spot }]);
+  const add = async (type: WidgetPlacement["type"]) => {
+    const problem = type === "tasks" ? await addTaskListWidget() : addWidget(type);
+    setError(problem);
   };
 
   return (
