@@ -1,136 +1,214 @@
+<div align="center">
+
+<img src="public/app-icon.svg" width="96" alt="Ícone do SentUtility" />
+
 # SentUtility
 
-Aplicativo desktop de produtividade pessoal para Windows: dashboard, calendário, tarefas diárias/semanais, tarefas com duração, timer, cronômetro, alarmes, relógio mundial e programação semanal — tudo local e offline.
+**Planejamento, tarefas, agenda e foco num só app de desktop — rápido, bonito e 100% offline.**
 
-## Tecnologias
+[![Última versão](https://img.shields.io/github/v/release/KaueFSS/SentUtility?label=vers%C3%A3o&color=2b8af7)](https://github.com/KaueFSS/SentUtility/releases/latest)
+[![Testes](https://github.com/KaueFSS/SentUtility/actions/workflows/ci.yml/badge.svg)](https://github.com/KaueFSS/SentUtility/actions/workflows/ci.yml)
+[![Downloads](https://img.shields.io/github/downloads/KaueFSS/SentUtility/total?color=30a46c)](https://github.com/KaueFSS/SentUtility/releases)
+![Tauri 2](https://img.shields.io/badge/Tauri-2-24c8db)
+![React 19](https://img.shields.io/badge/React-19-61dafb)
+![Rust](https://img.shields.io/badge/Rust-backend-dea584)
+![SQLite](https://img.shields.io/badge/SQLite-local-003b57)
+[![Licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-lightgrey)](LICENSE)
 
-- **Frontend**: React + TypeScript + Vite + Tailwind CSS v4 + Zustand
-- **Desktop**: Tauri 2
-- **Backend nativo**: Rust
-- **Banco de dados**: SQLite (via `rusqlite`, bundled)
+[**Experimentar no navegador**](https://kauefss.github.io/SentUtility/) &nbsp;·&nbsp; [**Baixar para Windows**](https://github.com/KaueFSS/SentUtility/releases/latest) &nbsp;·&nbsp; [Arquitetura](docs/ARQUITETURA.md) &nbsp;·&nbsp; [Como foi construído](#como-foi-construído)
 
-Sem Electron, sem backend web externo, sem Python. O app roda 100% local. A arquitetura (camadas `commands` → `services` → `db/repo`) foi desenhada para permitir, no futuro, adicionar sincronização com uma API sem reescrever a lógica de negócio.
+<br />
 
-## Requisitos
+<img src="docs/screenshots/painel.png" alt="Painel inicial do SentUtility" width="100%" />
 
-- Node.js 18+
-- Rust (via [rustup](https://rustup.rs)) com o toolchain `stable-x86_64-pc-windows-msvc`
-- Microsoft Visual Studio Build Tools com o componente "Desktop development with C++" (necessário para compilar o Rust no Windows)
-- WebView2 Runtime (já vem instalado por padrão no Windows 10/11)
+</div>
 
-> **Importante sobre o caminho do projeto**: o Windows tem um limite clássico de 260 caracteres para caminhos de arquivo (`MAX_PATH`). O linker do Rust grava arquivos intermediários com nomes longos dentro de `target/`, então o projeto **precisa** viver em um caminho curto (ex.: `C:\Sentinell\FocusFlow`). Em pastas muito aninhadas (ex.: dentro de vários níveis de `AppData`), o build falha com `LNK1104`.
+<br />
 
-## Instalação
+## O que é
+
+O SentUtility junta o que normalmente ficaria espalhado em cinco apps: **calendário, tarefas diárias e semanais, programação da semana, timer/cronômetro, alarmes e relógio mundial**. Tudo roda no seu computador, sem conta, sem nuvem e sem internet.
+
+O painel funciona como o Obsidian: você monta **guias com widgets** que arrasta e redimensiona do jeito que quiser, e cada guia mostra os mesmos dados de ângulos diferentes.
+
+> Projeto solo, do zero: interface, backend em Rust, banco de dados, instalador assinado e atualização automática.
+
+## Destaques
+
+<table>
+<tr>
+<td width="50%">
+
+### Painel em guias, estilo Obsidian
+Widgets livres numa grade 12×12 — arraste, redimensione por qualquer borda, crie guias novas a partir de modelos. Nenhuma tela tem rolagem.
+
+</td>
+<td width="50%">
+
+### Campo de escrever que entende você
+Digite `Academia seg qua sex 18h` ou `Call mom tomorrow 3pm` e ele monta a tarefa. Entende português, inglês e a mistura dos dois, sugere o que você já escreveu e completa com Tab.
+
+</td>
+</tr>
+<tr>
+<td>
+
+### Sequência de dias
+Uma chama no topo conta quantos dias seguidos você fez tudo o que era para o dia. Cada tarefa mostra o próprio histórico.
+
+</td>
+<td>
+
+### Tarefas que somem sozinhas
+Listas de tarefas avulsas, com várias listas no painel. As concluídas saem depois de um tempo que você escolhe — a lista não vira um cemitério.
+
+</td>
+</tr>
+<tr>
+<td>
+
+### Cores livres
+Qualquer cor de fundo e de destaque, no modo claro ou escuro. O app calcula bordas, textos e contraste sozinho para nada ficar ilegível.
+
+</td>
+<td>
+
+### Atualiza sozinho
+O instalador procura versões novas, confere a **assinatura criptográfica**, instala e reabre. Cada versão publicada traz a lista do que mudou.
+
+</td>
+</tr>
+</table>
+
+<details open>
+<summary><b>Mais telas</b></summary>
+<br />
+
+| | |
+|---|---|
+| <img src="docs/screenshots/estudos.png" alt="Guia Estudos" /><br /><sub><b>Guia "Estudos"</b> — foco, lista da faculdade, Linha do Dia e relógios</sub> | <img src="docs/screenshots/planejamento.png" alt="Guia Planejamento" /><br /><sub><b>Guia "Planejamento"</b> — semana em colunas, listas, alarmes e eventos</sub> |
+| <img src="docs/screenshots/calendario.png" alt="Calendário" /><br /><sub><b>Calendário</b> — eventos e tarefas dentro de cada dia, arraste para remarcar</sub> | <img src="docs/screenshots/programacao.png" alt="Programação semanal" /><br /><sub><b>Programação semanal</b> — a grade da semana monta sozinha</sub> |
+
+</details>
+
+<details>
+<summary><b>Temas: qualquer cor</b></summary>
+<br />
+
+| | |
+|---|---|
+| <img src="docs/screenshots/tema-floresta.png" alt="Tema escuro verde" /> | <img src="docs/screenshots/tema-areia.png" alt="Tema claro areia" /> |
+
+</details>
+
+## Funcionalidades
+
+- **Dashboard em guias** com 11 tipos de widget, guias a partir de modelos e edição livre do layout
+- **Calendário** em grade mensal, com eventos recorrentes (diário, semanal, mensal) e tarefas com data
+- **Tarefas diárias** que reiniciam no horário e fuso que você escolher (o "dia" não é o do relógio, é o do seu ciclo)
+- **Tarefas semanais** em colunas por dia, com progresso e arrastar para remarcar
+- **Tarefas avulsas** em listas, na ordem que você quiser (arraste a linha inteira) ou ordenadas por data
+- **Tarefas com duração** que contam o tempo de verdade — sobrevivem a fechar o app no meio
+- **Programação semanal** que se organiza em tabela conforme você adiciona horários
+- **Foco**: timer, cronômetro com voltas
+- **Alarmes** e **relógio mundial** com dia/noite e diferença de fuso
+- **Linha do Dia**: tudo que tem horário hoje numa linha do tempo, com "agora" e "próximo"
+- **Busca global** (`Ctrl + Espaço`) em tarefas, eventos, alarmes e programação
+- **Sons** sintetizados na hora (concluir, adicionar, redimensionar, dia completo) — com volume e botão de desligar
+- **Notificações do sistema**, bandeja, iniciar com o Windows
+- **Ícones desenhados à mão** (mais de 30, duotone), sem biblioteca pronta e sem emojis
+- **Atualização automática** assinada, com janela "O que há de novo"
+
+## Como funciona por dentro
+
+```mermaid
+flowchart LR
+    UI["React + Zustand<br/><sub>interface e estado</sub>"] -- "invoke()" --> CMD["Comandos Tauri<br/><sub>só fazem a ponte</sub>"]
+    CMD --> SVC["Services (Rust)<br/><sub>regras de negócio</sub>"]
+    SVC --> REPO["Repos<br/><sub>SQL</sub>"]
+    REPO --> DB[("SQLite<br/><sub>arquivo local</sub>")]
+    SVC -. "agendador em background" .-> OS["Notificações<br/>e alarmes"]
+```
+
+| Camada | Tecnologia |
+|---|---|
+| Interface | React 19, TypeScript, Vite, Tailwind CSS v4, Zustand, dnd-kit, react-grid-layout |
+| Desktop | Tauri 2 (instalador NSIS, bandeja, atualizador, notificações) |
+| Backend | Rust — `rusqlite`, `chrono`/`chrono-tz`, `tokio`, `thiserror` |
+| Dados | SQLite local, com 11 migrations numeradas e nunca editadas depois de publicadas |
+| Qualidade | Vitest (frontend) e `cargo test` (backend), rodando no GitHub Actions |
+| Entrega | GitHub Actions compila, **assina** e publica o instalador e o `latest.json` |
+
+Sem Electron, sem servidor, sem Python: **um executável pequeno e nenhum dado sai do computador.**
+
+### Decisões que valem a pena olhar
+
+- **O "dia" da tarefa não é o do relógio.** A data do ciclo vem de `cycle_date`, que cruza a hora atual, o fuso configurado e o horário de reset (antes dele, ainda é "ontem"). Isso evita o clássico bug de virada de dia perto da meia-noite ou com fusos diferentes — e tem testes.
+- **Timers guardam timestamps, não contadores.** `started_at` + `elapsed_seconds` no banco; o tempo na tela é sempre recalculado. Funciona com a janela minimizada, o processador lento ou o app fechado.
+- **Agendador dentro do próprio processo.** Um loop assíncrono em Rust confere alarmes e timers a cada 5 s, então as notificações disparam sem a interface aberta.
+- **Eventos recorrentes não duplicam linhas.** Só o evento-base é guardado; as ocorrências são expandidas sob demanda para o período que o calendário pede, com limite de segurança.
+- **Histórico por dia, não um booleano.** Cada conclusão é uma linha `(tarefa, dia)`; é assim que existem a sequência de dias e o histórico de cada tarefa.
+- **Arrastar atualiza a tela primeiro.** O item fica onde foi solto e o estado real só é recarregado se o backend recusar.
+- **Cores calculadas, não escolhidas uma a uma.** Duas cores do usuário viram toda a paleta (superfícies, bordas, textos, contraste do botão) a partir do brilho.
+- **Mesmo app em qualquer tela.** A fonte raiz escala com a janela (80–125%) e tudo usa `rem`.
+
+Tudo isso, com os arquivos onde cada coisa mora, está em [docs/ARQUITETURA.md](docs/ARQUITETURA.md).
+
+## Qualidade
+
+- **81 testes automatizados** — 54 no frontend (linguagem natural, sugestões, ordem de listas, agenda do dia, progresso semanal) e 27 no backend (reset diário com fuso, timers, recorrência, alarmes, tarefas, listas, sequência)
+- **TypeScript estrito** sem erros e **migrations imutáveis**
+- **CI** a cada push: tipos, testes do frontend, testes do backend e build
+- **Atualizações assinadas**: o app só instala o que foi assinado com a chave privada do autor
+
+## Como foi construído
+
+O histórico do repositório conta a história, um passo de cada vez:
+
+| Quando | Commit | O que entrou |
+|---|---|---|
+| 29/09 | [`37a6573`](https://github.com/KaueFSS/SentUtility/commit/37a6573) **SentUtility 1.0.0** | A base completa: backend Rust com SQLite e migrations, painel em guias e widgets, calendário, tarefas diárias e semanais, programação, foco, alarmes, relógio mundial, busca, tema, ícones próprios, instalador e atualização automática |
+| 29/09 | [`993cb45`](https://github.com/KaueFSS/SentUtility/commit/993cb45) Script de release aceita `Cargo.lock` com CRLF | Primeiro ajuste do processo de publicação, descoberto ao lançar |
+| 13/10 | [`e076389`](https://github.com/KaueFSS/SentUtility/commit/e076389) Listas de tarefas, sequência, calendário e planners novos, sons e novidades | A grande rodada de produto: listas avulsas, chama de sequência, calendário em grade, planners em colunas, barra de status, cores livres e sons |
+| 13/10 | [`71a1b73`](https://github.com/KaueFSS/SentUtility/commit/71a1b73) **Versão 1.1.0** | Primeira versão publicada com essas novidades |
+| 13/10 | [`8ede450`](https://github.com/KaueFSS/SentUtility/commit/8ede450) Ordem manual nas listas, som ao redimensionar e campo de escrever mais esperto | Arrastar para ordenar, linguagem natural em inglês, sugestões e completar com Tab |
+| 13/10 | [`e407bec`](https://github.com/KaueFSS/SentUtility/commit/e407bec) **Versão 1.2.0** | Publicação da rodada acima |
+| 14/10 | [`e4effa0`](https://github.com/KaueFSS/SentUtility/commit/e4effa0) Tarefas recorrentes novas sempre visíveis e Enter do campo não é sequestrado pelo mouse | Dois bugs reais reportados por um usuário, corrigidos com teste |
+| 14/10 | [`f897733`](https://github.com/KaueFSS/SentUtility/commit/f897733) **Versão 1.2.1** | Correção publicada — quem já tinha o app recebeu sozinho |
+| 14/10 | Demonstração, documentação e CI | Modo demonstração no navegador, este README e a integração contínua |
+
+Cada versão tem suas notas em [Releases](https://github.com/KaueFSS/SentUtility/releases), escritas em frases curtas e só com o que foi adicionado.
+
+## Rodar o projeto
+
+**Só ver a interface** (sem Rust, sem instalar nada além do Node):
 
 ```bash
 npm install
+npm run dev
 ```
 
-## Executar em desenvolvimento
+O navegador abre com dados de demonstração — é o mesmo código do app, com um backend em memória no lugar do Rust.
+
+**O app completo** (precisa de Rust e das ferramentas de C++ do Windows):
 
 ```bash
-npm run tauri dev
+npm run tauri dev      # abre a janela do app
+npm test               # testes do frontend
+cd src-tauri && cargo test --lib   # testes do backend
+npm run tauri build    # gera o instalador
 ```
 
-Isso compila o backend Rust, inicia o Vite e abre a janela do aplicativo. O banco SQLite é criado automaticamente em `%APPDATA%\com.sentutility.app\sentutility.sqlite3` na primeira execução, com todas as migrations aplicadas. Quem já usava a versão com o nome antigo (FocusFlow, pasta `com.focusflow.app`) tem os dados copiados automaticamente na primeira abertura (`migrate_legacy_data` em `lib.rs`).
+Requisitos, gerar instalador assinado e publicar versões: [docs/DESENVOLVIMENTO.md](docs/DESENVOLVIMENTO.md).
 
-## Executar os testes
+## Instalar
 
-Testes do backend (reset diário com timezone, timers baseados em timestamp, recorrência de eventos, alarmes, tarefas temporizadas):
+Baixe o `SentUtility_x.y.z_x64-setup.exe` em [Releases](https://github.com/KaueFSS/SentUtility/releases/latest). Instala só para o seu usuário (sem pedir administrador) e se atualiza sozinho dali em diante.
 
-```bash
-cd src-tauri
-cargo test
-```
+> Como o instalador ainda não tem certificado de editor pago, o Windows SmartScreen pode avisar na primeira vez: clique em **Mais informações → Executar assim mesmo**.
 
-Testes do frontend (linguagem natural) e verificação de tipos:
+## Autor
 
-```bash
-npm test
-```
+Feito por **Kauê** — [@KaueFSS](https://github.com/KaueFSS).
 
-
-```bash
-npx tsc --noEmit
-```
-
-## Gerar build de produção / instalador Windows
-
-```bash
-npm run tauri build
-```
-
-Gera o instalador NSIS (`SentUtility_<versão>_x64-setup.exe`) em `src-tauri/target/release/bundle/nsis/`. Instala por usuário (sem pedir administrador), em português.
-
-Para um build local assinado (necessário para os artefatos de atualização), defina a chave antes:
-
-```powershell
-$env:TAURI_SIGNING_PRIVATE_KEY = Get-Content "$HOME\.tauri\sentutility.key" -Raw
-$env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD = ""
-npm run tauri build
-```
-
-## Lançar uma nova versão (atualização automática)
-
-Todo computador com o SentUtility instalado procura atualizações ao abrir e a cada 6 horas, no endereço `https://github.com/KaueFSS/SentUtility/releases/latest/download/latest.json`. Quando há uma versão nova, aparece um aviso com as novidades e o botão **Atualizar agora**; o app baixa, confere a assinatura, instala e reabre sozinho. Em Configurações há a versão atual e o botão **Procurar atualizações**.
-
-Para lançar:
-
-```bash
-npm run release -- 1.1.0 "O que mudou nesta versão"
-```
-
-O script (`scripts/release.mjs`) atualiza a versão em `package.json`, `tauri.conf.json`, `Cargo.toml` e nos lockfiles, faz o commit, cria a tag `v1.1.0` (a mensagem vira as notas da versão) e envia para o GitHub. O workflow `.github/workflows/release.yml` roda os testes, compila, **assina** e publica o instalador e o `latest.json`. Acompanhe em *Actions* no GitHub.
-
-**Assinatura**: o app só instala atualizações assinadas com a chave privada `~/.tauri/sentutility.key` (a chave pública está em `tauri.conf.json`). Guarde um backup dessa chave em lugar seguro: sem ela não é possível publicar atualizações para quem já instalou. Ela nunca vai para o repositório (`*.key` está no `.gitignore`); no GitHub ela fica nos *secrets* `TAURI_SIGNING_PRIVATE_KEY` e `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` (vazio).
-
-## Estrutura do projeto
-
-```
-src/                        Frontend (React)
-  components/                Componentes de UI e de features (tasks, timer, calendar, layout)
-  pages/                     Uma página por item da sidebar
-  stores/                    Zustand — um store por domínio (tasks, timer, stopwatch, calendar, alarms, schedule, worldClock, settings, ui)
-  services/                  Wrappers finos sobre `invoke()` do Tauri, um por domínio
-  types/                     Tipos TypeScript espelhando os modelos Rust
-  hooks/                     Hooks compartilhados (ex.: tick de UI para timers)
-  utils/                     Formatação, cálculo de tempo "ao vivo", grade de calendário
-
-src-tauri/src/               Backend (Rust)
-  commands/                  Um arquivo por domínio — só faz a ponte entre Tauri e services, sem lógica
-  services/                  Regras de negócio (reset diário, recorrência, timers, alarmes, agendador em background)
-  db/
-    repo/                    Acesso a dados (SQL), um repositório por tabela/domínio
-    sql/                     Migrations numeradas, aplicadas uma vez cada, nunca editadas depois de publicadas
-  models/                    Tipos Rust (serde) espelhando as tabelas e os DTOs de comando
-  error.rs                   Um único tipo de erro para toda a aplicação
-```
-
-Fluxo de uma operação: `React → invoke() → Tauri command → service (regra de negócio) → repo (SQL) → SQLite`. O frontend nunca monta SQL, e os componentes React nunca acessam o banco diretamente.
-
-## Banco de dados
-
-Tabelas: `settings`, `tasks`, `task_completions`, `task_sessions`, `events`, `alarms`, `weekly_schedule_blocks`, `world_clocks`, `timer_sessions`, `dashboard_tabs`, mais `schema_migrations` para controle de versão do esquema.
-
-Não há tabela `users`: por ser um app local de usuário único, `settings` é uma única linha (`id = 1`). Se um dia for necessário suporte a múltiplos perfis, essa linha se torna o perfil padrão.
-
-O histórico de conclusão de tarefas diárias/semanais fica em `task_completions`, com uma linha por `(task_id, cycle_date)` — nunca um booleano único na tarefa — para preservar o histórico de cada dia (ex.: "Estudar Python: 28/09 ✓, 29/09 ✓, 30/09 ✗").
-
-## Decisões técnicas importantes
-
-- **Reset diário com fuso horário**: o "dia" de uma tarefa diária/semanal não é a data do relógio do sistema — é calculada em `services/time_util.rs::cycle_date`, que compara a hora atual (convertida para o fuso configurado) com o horário de reset. Antes do horário de reset, ainda é considerado o dia anterior. Isso evita bugs de virada de dia incorreta perto de meia-noite/fusos diferentes.
-- **Timers baseados em timestamp, não em `setInterval`**: toda sessão de timer/cronômetro/tarefa temporizada guarda `started_at`, `paused_at` e `elapsed_seconds` no banco. O tempo exibido é sempre recalculado como `elapsed_seconds + (agora − started_at)` quando em execução — nunca decrementado por um contador local. Isso faz o tempo sobreviver corretamente a minimização da janela, um event loop lento, ou o app sendo fechado e reaberto no meio de uma tarefa. Uma tarefa temporizada só é marcada como concluída quando esse cálculo real atinge a duração configurada (nunca "otimisticamente" quando a contagem regressiva do frontend chega a zero).
-- **Agendador em background**: um loop assíncrono (`services/scheduler.rs`) roda a cada 5s dentro do próprio processo Tauri, verificando alarmes devidos, eventos próximos e timers/tarefas temporizadas em execução — para que notificações e conclusões automáticas funcionem mesmo com a janela minimizada, sem depender do frontend estar aberto ou em foco.
-- **Recorrência de eventos**: eventos recorrentes (`daily`/`weekly`/`monthly`) não duplicam linhas no banco — a tabela guarda só o evento base, e `services/event_service.rs` expande as ocorrências sob demanda para um intervalo de datas pedido pelo calendário, com um limite de segurança de ocorrências para nunca gerar um loop não-limitado.
-- **Guias e widgets (estilo Obsidian)**: o dashboard é organizado em guias salvas na tabela `dashboard_tabs` (migration `0010`), cada uma com seu layout em JSON (`[{i, type, x, y, w, h}]`) numa grade 12×12. A guia "Início" já vem com tudo; outras guias podem começar em branco ou de um modelo (Estudos, Planejamento, Relógio) e recebem só os widgets escolhidos. No modo "Editar guia", widgets são movidos pela barra, redimensionados pelo canto e removidos pelo × (`react-grid-layout`, posicionamento livre sem sobreposição). O backend (`services/dashboard_service.rs`) valida nome, ids únicos, limites da grade e sobreposição antes de salvar; o frontend salva com debounce e recarrega se o salvamento falhar. Os widgets leem os mesmos stores, então os dados são idênticos em todas as guias. A altura das linhas vem da altura da janela, por isso nenhuma guia tem rolagem.
-- **Cores personalizáveis** (`utils/appearance.ts`): o botão de paleta na barra de guias abre combinações prontas (Grafite, Meia-noite, Floresta, Vinho, Areia, Neblina) e escolhas independentes de modo (escuro/claro), tom do fundo e cor de destaque (paleta ou qualquer cor). Todas as superfícies, bordas e textos são calculados a partir dessas poucas escolhas, e o brilho/saturação do destaque é limitado para manter o texto legível e nada "neon". A escolha é aplicada na hora e salva na linha de `settings` já existente (`theme` = modo, `accent_color` = `"tom:#hex"`), sem nova migration; um cache em `localStorage` evita piscar o visual padrão ao abrir.
-- **Ícones próprios** (`components/ui/icons.tsx`): em vez de um pacote de ícones pronto, o app tem 34 ícones desenhados à mão numa grade de 24px, com traço arredondado e uma "sombra" translúcida da mesma cor por trás (duotone), então eles acompanham a cor de destaque escolhida. Não há emojis na interface. A API é a mesma de bibliotecas comuns (`<Play size={16} />`, cor via `currentColor`), e novos ícones entram nesse arquivo.
-- **"Agora / Próximo" e Linha do Dia** (`utils/todayAgenda.ts`, com testes): um único motor junta tudo que tem horário hoje (blocos da programação, eventos, tarefas diárias/semanais com hora, alarmes) numa lista ordenada, marcando o que já passou, o que está acontecendo, o próximo e tarefas atrasadas. Ele alimenta o aviso ao vivo na barra de guias e o widget "Linha do Dia" (linha do tempo com marcador de agora e faixa do dia inteiro).
-- **Sinais visuais de tempo** (`utils/timeHints.ts`): todos os widgets falam de tempo do mesmo jeito ("em 20 min", "há 5 min", "faltam 1h10", "1h30"): tarefas mostram atrasada/em breve e sequência de dias, a programação destaca o bloco atual com progresso e esmaece os que passaram, eventos mostram o que está rolando, alarmes mostram quando tocam, relógios mostram dia/noite e "amanhã/ontem".
-- **Tarefas semanais como "faixa da semana + dia em foco"** (`components/tasks/WeeklyTasksBoard.tsx`, `weekProgress.ts` com testes): sete pílulas de dia com anel de progresso (verde quando completo, vermelho quando algo ficou para trás) e a lista do dia escolhido. Dias passados são lidos do histórico de conclusões (uma linha por tarefa por dia), hoje da conclusão atual, e dias futuros ficam como "agendada". Arrastar uma tarefa até uma pílula a remarca. Concluir dispara uma animação curta (`ff-pop`/`ff-flash` em `index.css`). Quando o widget é baixo (como no Início), entra um modo compacto automático (medido com `useElementSize`).
-- **Arrastar e soltar em todo o app**: cada tela tem um único `AppDndContext` (`src/components/dnd/`). Itens arrastáveis declaram um payload tipado (`schedule-block`, `weekly-task`, `event`, `daily-task`, `world-clock`) e áreas de soltar declaram o que aceitam; o contexto é o único lugar que transforma um "soltar" em ação de store. As ações de arrastar atualizam o estado local antes da chamada ao backend (o item fica onde foi solto) e recarregam o estado real se a chamada falhar.
-- **Criação e edição sem modais**: listas usam `InlineAdd` (digitar + Enter) e itens abrem editores em `Popover` (renderizado em portal, nunca cortado pelo card). A ordem manual das tarefas é salva na coluna `tasks.sort_order` (migration `0008`).
-- **Programação semanal como tabela que se monta sozinha** (`WeeklyTimetable`): cada par início–fim em uso vira uma linha; horários sem nada não ocupam espaço. Blocos com o mesmo título herdam a mesma cor, e a linha do horário atual/próximo é destacada.
-- **Linguagem natural** (`utils/naturalLanguage.ts`, com testes): os campos de criação entendem frases como "Academia seg qua sex 18h" ou "Prova amanhã 9h-11h", mostram uma prévia do que foi entendido e aplicam padrões inteligentes centralizados em `stores/smartActions.ts`.
-- **Mesma experiência em qualquer tela** (`hooks/useUiScale.ts`): a fonte raiz (e com ela todos os tamanhos em rem) escala com a janela em relação a um tamanho de referência, limitado entre 80% e 125%; ícones seguem via `--ui-scale`. Por isso o código evita tamanhos fixos em px.
-- **Um único tipo de erro (`AppError`)**: todo comando Tauri retorna `Result<T, AppError>`; o frontend só vê uma mensagem de erro em português já pronta para exibir ao usuário, nunca um erro técnico do SQLite ou do Rust.
+Licença [MIT](LICENSE).
