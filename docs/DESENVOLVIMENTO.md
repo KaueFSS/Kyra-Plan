@@ -1,6 +1,6 @@
 # Desenvolvimento
 
-Como rodar, testar, compilar e publicar o SentUtility.
+Como rodar, testar, compilar e publicar o Kyra Plan.
 
 > Quer só ver a interface? `npm install && npm run dev` abre o app no navegador com dados de demonstração, sem precisar de Rust.
 
@@ -57,7 +57,7 @@ npx tsc --noEmit
 npm run tauri build
 ```
 
-Gera o instalador NSIS (`SentUtility_<versão>_x64-setup.exe`) em `src-tauri/target/release/bundle/nsis/`. Instala por usuário (sem pedir administrador), em português.
+Gera o instalador NSIS (`Kyra Plan_<versão>_x64-setup.exe`) em `src-tauri/target/release/bundle/nsis/`. Instala por usuário (sem pedir administrador), em português.
 
 Para um build local assinado (necessário para os artefatos de atualização), defina a chave antes:
 
@@ -70,7 +70,7 @@ npm run tauri build
 
 ## Lançar uma nova versão (atualização automática)
 
-Todo computador com o SentUtility instalado procura atualizações ao abrir e a cada 6 horas, no endereço `https://github.com/KaueFSS/SentUtility/releases/latest/download/latest.json`. Quando há uma versão nova, aparece um aviso com as novidades e o botão **Atualizar agora**; o app baixa, confere a assinatura, instala e reabre sozinho. Em Configurações há a versão atual e o botão **Procurar atualizações**.
+Todo computador com o Kyra Plan instalado procura atualizações ao abrir e a cada 6 horas, no endereço `https://github.com/KaueFSS/Kyra-Plan/releases/latest/download/latest.json`. Quando há uma versão nova, aparece um aviso com as novidades e o botão **Atualizar agora**; o app baixa, confere a assinatura, instala e reabre sozinho. Em Configurações há a versão atual e o botão **Procurar atualizações**.
 
 Para lançar:
 
@@ -82,3 +82,25 @@ O script (`scripts/release.mjs`) atualiza a versão em `package.json`, `tauri.co
 
 **Assinatura**: o app só instala atualizações assinadas com a chave privada `~/.tauri/sentutility.key` (a chave pública está em `tauri.conf.json`). Guarde um backup dessa chave em lugar seguro: sem ela não é possível publicar atualizações para quem já instalou. Ela nunca vai para o repositório (`*.key` está no `.gitignore`); no GitHub ela fica nos *secrets* `TAURI_SIGNING_PRIVATE_KEY` e `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` (vazio).
 
+
+## Da troca de nome (de SentUtility para Kyra Plan)
+
+Até a 1.2.x o app se chamava SentUtility. A 1.3.0 trocou nome e ícone, e quem já tinha o app recebe isso pela atualização automática, **sem perder nada**:
+
+- **Os dados não mudam de lugar.** O identificador interno do app (`com.sentutility.app`), o arquivo do banco (`sentutility.sqlite3`) e as chaves de preferências continuam os mesmos de propósito. Tarefas, eventos, cores e configurações ficam onde sempre estiveram, e o app novo lê tudo na primeira abertura.
+- **O instalador troca o app antigo pelo novo.** Como o Windows trata "SentUtility" e "Kyra Plan" como programas diferentes, `src-tauri/installer-hooks.nsh` remove a cópia antiga **no modo de atualização do desinstalador (que nunca apaga dados)** e refaz os atalhos da área de trabalho e do menu Iniciar, além da opção "iniciar com o Windows", se a pessoa usava.
+- **O endereço de atualização antigo continua valendo.** O GitHub redireciona o endereço do repositório antigo para o novo, então as versões antigas ainda encontram a 1.3.0 (não reutilize o nome antigo para outro repositório).
+
+### Lançar sem entregar de imediato (pré-lançamento)
+
+Para testar um instalador antes de ele chegar a todo mundo:
+
+```bash
+npm run release -- 1.3.0 --pre
+```
+
+A release sai marcada como **pré-lançamento**: dá para baixar e testar, mas o endereço `releases/latest` (o que o auto-update lê) a ignora. Depois de testar, entregue a todos sem recompilar:
+
+```bash
+gh release edit v1.3.0 --prerelease=false --latest
+```

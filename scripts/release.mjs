@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Publishes a new SentUtility version in one command:
+ * Publishes a new Kyra Plan version in one command:
  *
  *   npm run release -- 1.1.0
  *
@@ -15,7 +15,10 @@
 import { execSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 
-const [version, ...noteParts] = process.argv.slice(2);
+const args = process.argv.slice(2);
+// --pre: publish as a pre-release (downloadable for testing, not delivered to the auto-update).
+const pre = args.includes("--pre");
+const [version, ...noteParts] = args.filter((a) => a !== "--pre");
 const notes = noteParts.join(" ").trim();
 
 function fail(message) {
@@ -49,7 +52,8 @@ if (run(`git tag -l v${version}`)) fail(`A tag v${version} já existe.`);
 const changelog = JSON.parse(readFileSync("src/data/changelog.json", "utf8"));
 const entry = changelog.find((e) => e.version === version);
 if (!notes && !entry) fail(`Adicione a versão ${version} em src/data/changelog.json (o que foi adicionado) antes de lançar.`);
-const message = notes || ["Novidades:", ...entry.added.map((item) => `- ${item}`)].join("\n");
+const body = notes || ["Novidades:", ...entry.added.map((item) => `- ${item}`)].join("\n");
+const message = pre ? `[pre-release]\n${body}` : body;
 
 const replaceIn = (file, from, to) => {
   const text = readFileSync(file, "utf8");
@@ -69,5 +73,9 @@ execSync(`git commit -m "Versão ${version}"`, { stdio: "inherit" });
 execSync(`git tag -a v${version} -F -`, { input: message, stdio: ["pipe", "inherit", "inherit"] });
 execSync(`git push origin main --follow-tags`, { stdio: "inherit" });
 
-console.log(`\n✔ v${version} enviada. Acompanhe a publicação em: https://github.com/KaueFSS/SentUtility/actions`);
-console.log("  Assim que terminar, todos os computadores com o SentUtility recebem o aviso de atualização.\n");
+console.log(`\n✔ v${version} enviada. Acompanhe a publicação em: https://github.com/KaueFSS/Kyra-Plan/actions`);
+console.log(
+  pre
+    ? `  Pré-lançamento: baixe e teste. Para entregar a todos: gh release edit v${version} --prerelease=false --latest\n`
+    : "  Assim que terminar, todos os computadores com o Kyra Plan recebem o aviso de atualização.\n",
+);

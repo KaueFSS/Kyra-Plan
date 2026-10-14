@@ -1,24 +1,24 @@
 <div align="center">
 
-<img src="public/app-icon.svg" width="96" alt="Ícone do SentUtility" />
+<img src="public/app-icon.svg" width="96" alt="Ícone do Kyra Plan" />
 
-# SentUtility
+# Kyra Plan
 
 **Planejamento, tarefas, agenda e foco num só app de desktop — rápido, bonito e 100% offline.**
 
-[![Última versão](https://img.shields.io/github/v/release/KaueFSS/SentUtility?label=vers%C3%A3o&color=2b8af7)](https://github.com/KaueFSS/SentUtility/releases/latest)
-[![Testes](https://github.com/KaueFSS/SentUtility/actions/workflows/ci.yml/badge.svg)](https://github.com/KaueFSS/SentUtility/actions/workflows/ci.yml)
+[![Última versão](https://img.shields.io/github/v/release/KaueFSS/Kyra-Plan?label=vers%C3%A3o&color=2b8af7)](https://github.com/KaueFSS/Kyra-Plan/releases/latest)
+[![Testes](https://github.com/KaueFSS/Kyra-Plan/actions/workflows/ci.yml/badge.svg)](https://github.com/KaueFSS/Kyra-Plan/actions/workflows/ci.yml)
 ![Tauri 2](https://img.shields.io/badge/Tauri-2-24c8db)
 ![React 19](https://img.shields.io/badge/React-19-61dafb)
 ![Rust](https://img.shields.io/badge/Rust-backend-dea584)
 ![SQLite](https://img.shields.io/badge/SQLite-local-003b57)
 [![Licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-lightgrey)](LICENSE)
 
-[**Experimentar no navegador**](https://kauefss.github.io/SentUtility/) &nbsp;·&nbsp; [**Baixar para Windows**](https://github.com/KaueFSS/SentUtility/releases/latest) &nbsp;·&nbsp; [Arquitetura](docs/ARQUITETURA.md) &nbsp;·&nbsp; [Como foi construído](#como-foi-construído)
+[**Experimentar no navegador**](https://kauefss.github.io/Kyra-Plan/) &nbsp;·&nbsp; [**Baixar para Windows**](https://github.com/KaueFSS/Kyra-Plan/releases/latest) &nbsp;·&nbsp; [Arquitetura](docs/ARQUITETURA.md) &nbsp;·&nbsp; [Como foi construído](#como-foi-construído)
 
 <br />
 
-<img src="docs/screenshots/painel.png" alt="Painel inicial do SentUtility" width="100%" />
+<img src="docs/screenshots/painel.png" alt="Painel inicial do Kyra Plan" width="100%" />
 
 </div>
 
@@ -26,7 +26,7 @@
 
 ## O que é
 
-O SentUtility junta o que normalmente ficaria espalhado em cinco apps: **calendário, tarefas diárias e semanais, programação da semana, timer/cronômetro, alarmes e relógio mundial**. Tudo roda no seu computador, sem conta, sem nuvem e sem internet.
+O Kyra Plan junta o que normalmente ficaria espalhado em cinco apps: **calendário, tarefas diárias e semanais, programação da semana, timer/cronômetro, alarmes e relógio mundial**. Tudo roda no seu computador, sem conta, sem nuvem e sem internet.
 
 O painel funciona como o Obsidian: você monta **guias com widgets** que arrasta e redimensiona do jeito que quiser, e cada guia mostra os mesmos dados de ângulos diferentes.
 
@@ -166,17 +166,18 @@ O histórico do repositório conta a história, um passo de cada vez:
 
 | Quando | Commit | O que entrou |
 |---|---|---|
-| 29/09 | [`37a6573`](https://github.com/KaueFSS/SentUtility/commit/37a6573) **SentUtility 1.0.0** | A base completa: backend Rust com SQLite e migrations, painel em guias e widgets, calendário, tarefas diárias e semanais, programação, foco, alarmes, relógio mundial, busca, tema, ícones próprios, instalador e atualização automática |
-| 29/09 | [`993cb45`](https://github.com/KaueFSS/SentUtility/commit/993cb45) Script de release aceita `Cargo.lock` com CRLF | Primeiro ajuste do processo de publicação, descoberto ao lançar |
-| 13/10 | [`e076389`](https://github.com/KaueFSS/SentUtility/commit/e076389) Listas de tarefas, sequência, calendário e planners novos, sons e novidades | A grande rodada de produto: listas avulsas, chama de sequência, calendário em grade, planners em colunas, barra de status, cores livres e sons |
-| 13/10 | [`71a1b73`](https://github.com/KaueFSS/SentUtility/commit/71a1b73) **Versão 1.1.0** | Primeira versão publicada com essas novidades |
-| 13/10 | [`8ede450`](https://github.com/KaueFSS/SentUtility/commit/8ede450) Ordem manual nas listas, som ao redimensionar e campo de escrever mais esperto | Arrastar para ordenar, linguagem natural em inglês, sugestões e completar com Tab |
-| 13/10 | [`e407bec`](https://github.com/KaueFSS/SentUtility/commit/e407bec) **Versão 1.2.0** | Publicação da rodada acima |
-| 14/10 | [`e4effa0`](https://github.com/KaueFSS/SentUtility/commit/e4effa0) Tarefas recorrentes novas sempre visíveis e Enter do campo não é sequestrado pelo mouse | Dois bugs reais reportados por um usuário, corrigidos com teste |
-| 14/10 | [`f897733`](https://github.com/KaueFSS/SentUtility/commit/f897733) **Versão 1.2.1** | Correção publicada — quem já tinha o app recebeu sozinho |
+| 29/09 | [`37a6573`](https://github.com/KaueFSS/Kyra-Plan/commit/37a6573) **SentUtility 1.0.0** (o nome de então) | A base completa: backend Rust com SQLite e migrations, painel em guias e widgets, calendário, tarefas diárias e semanais, programação, foco, alarmes, relógio mundial, busca, tema, ícones próprios, instalador e atualização automática |
+| 29/09 | [`993cb45`](https://github.com/KaueFSS/Kyra-Plan/commit/993cb45) Script de release aceita `Cargo.lock` com CRLF | Primeiro ajuste do processo de publicação, descoberto ao lançar |
+| 13/10 | [`e076389`](https://github.com/KaueFSS/Kyra-Plan/commit/e076389) Listas de tarefas, sequência, calendário e planners novos, sons e novidades | A grande rodada de produto: listas avulsas, chama de sequência, calendário em grade, planners em colunas, barra de status, cores livres e sons |
+| 13/10 | [`71a1b73`](https://github.com/KaueFSS/Kyra-Plan/commit/71a1b73) **Versão 1.1.0** | Primeira versão publicada com essas novidades |
+| 13/10 | [`8ede450`](https://github.com/KaueFSS/Kyra-Plan/commit/8ede450) Ordem manual nas listas, som ao redimensionar e campo de escrever mais esperto | Arrastar para ordenar, linguagem natural em inglês, sugestões e completar com Tab |
+| 13/10 | [`e407bec`](https://github.com/KaueFSS/Kyra-Plan/commit/e407bec) **Versão 1.2.0** | Publicação da rodada acima |
+| 14/10 | [`e4effa0`](https://github.com/KaueFSS/Kyra-Plan/commit/e4effa0) Tarefas recorrentes novas sempre visíveis e Enter do campo não é sequestrado pelo mouse | Dois bugs reais reportados por um usuário, corrigidos com teste |
+| 14/10 | [`f897733`](https://github.com/KaueFSS/Kyra-Plan/commit/f897733) **Versão 1.2.1** | Correção publicada — quem já tinha o app recebeu sozinho |
 | 14/10 | Demonstração, documentação e CI | Modo demonstração no navegador, este README e a integração contínua |
+| 14/10 | Renomeado para **Kyra Plan** · v1.3.0 | Nome e ícone novos, atualizando sozinho para quem já usava o app (veja [como a troca chega a quem já instalou](docs/DESENVOLVIMENTO.md#da-troca-de-nome-de-sentutility-para-kyra-plan)). Nada do que a pessoa criou se perde |
 
-Cada versão tem suas notas em [Releases](https://github.com/KaueFSS/SentUtility/releases), escritas em frases curtas e só com o que foi adicionado.
+Cada versão tem suas notas em [Releases](https://github.com/KaueFSS/Kyra-Plan/releases), escritas em frases curtas e só com o que foi adicionado.
 
 ## Rodar o projeto
 
@@ -202,7 +203,7 @@ Requisitos, gerar instalador assinado e publicar versões: [docs/DESENVOLVIMENTO
 
 ## Instalar
 
-Baixe o `SentUtility_x.y.z_x64-setup.exe` em [Releases](https://github.com/KaueFSS/SentUtility/releases/latest). Instala só para o seu usuário (sem pedir administrador) e se atualiza sozinho dali em diante.
+Baixe o instalador (`.exe`) em [Releases](https://github.com/KaueFSS/Kyra-Plan/releases/latest). Instala só para o seu usuário (sem pedir administrador) e se atualiza sozinho dali em diante.
 
 > Como o instalador ainda não tem certificado de editor pago, o Windows SmartScreen pode avisar na primeira vez: clique em **Mais informações → Executar assim mesmo**.
 

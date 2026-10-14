@@ -1,4 +1,4 @@
-# Builds, signs and publishes a SentUtility release whenever a version tag
+# Builds, signs and publishes a Kyra Plan release whenever a version tag
 # (v1.2.3) is pushed — normally by `npm run release -- 1.2.3 "notas"`.
 # The release gets the Windows installer plus `latest.json`, which is what
 # every installed copy polls to auto-update.
@@ -28,9 +28,15 @@ jobs:
         shell: bash
         run: |
           git fetch --tags --force
+          body="$(git tag -l --format='%(contents)' "${GITHUB_REF_NAME}")"
+          # Uma linha "[pre-release]" na mensagem da tag publica como pré-lançamento:
+          # dá para baixar e testar, mas o auto-update (releases/latest) ignora.
+          if printf '%s\n' "$body" | grep -q '^\[pre-release\]'; then pre=true; else pre=false; fi
+          body="$(printf '%s\n' "$body" | grep -v '^\[pre-release\]' || true)"
           {
+            echo "prerelease=$pre"
             echo "body<<__NOTES__"
-            git tag -l --format='%(contents)' "${GITHUB_REF_NAME}"
+            printf '%s\n' "$body"
             echo "__NOTES__"
           } >> "$GITHUB_OUTPUT"
 
@@ -62,8 +68,8 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           tagName: ${{ github.ref_name }}
-          releaseName: SentUtility ${{ github.ref_name }}
+          releaseName: Kyra Plan ${{ github.ref_name }}
           releaseBody: ${{ steps.notes.outputs.body }}
           releaseDraft: false
-          prerelease: false
+          prerelease: ${{ steps.notes.outputs.prerelease }}
           includeUpdaterJson: true
