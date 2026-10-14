@@ -1,5 +1,12 @@
 [
   {
+    "version": "1.2.1",
+    "date": "2026-10-14",
+    "added": [
+      "Em Configurações, uma linha mostra qual dia o app considera como hoje, com o fuso e a hora do reset"
+    ]
+  },
+  {
     "version": "1.2.0",
     "date": "2026-10-13",
     "added": [

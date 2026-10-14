@@ -4,6 +4,7 @@ import type { UpdateSettingsInput } from "../services/settingsService";
 import { getDisplayName, setDisplayName } from "../utils/profile";
 import { AboutSection } from "../components/update/AboutSection";
 import { DEFAULT_APPEARANCE } from "../utils/appearance";
+import { cycleNow } from "../utils/cycleDate";
 import { SoundSettings } from "../components/settings/SoundSettings";
 
 const TIMEZONES = [
@@ -122,6 +123,13 @@ export function SettingsPage() {
       </Section>
 
       <Section title="Tarefas">
+        <div className="rounded-lg bg-surface-2 px-3 py-2 text-xs text-text-secondary">
+          Para o app, hoje é{" "}
+          <span className="font-semibold text-text-primary">
+            {cycleNow(form).setLocale("pt-BR").toFormat("cccc, d 'de' LLLL").replace(/\./g, "")}
+          </span>{" "}
+          (reset às {form.dailyResetTime}, fuso {form.dailyResetTimezone}). Se não for o dia que você vê no Windows, ajuste o fuso abaixo.
+        </div>
         <Field label="Horário de reset diário">
           <input
             type="time"

@@ -6,6 +6,8 @@ import { useAlarmStore } from "./alarmStore";
 import { addMinutesToClock, nextWeekday, type ParsedInput } from "../utils/naturalLanguage";
 import { PALETTE } from "../components/ui/FormControls";
 import { todayIsoDate } from "../utils/format";
+import { cycleNow } from "../utils/cycleDate";
+import { useSettingsStore } from "./settingsStore";
 import { ApiError } from "../services/tauri";
 
 /**
@@ -18,6 +20,9 @@ function nextFullHour(): string {
   return next.hour === 0 ? "23:00" : next.toFormat("HH:mm");
 }
 
+/** "Today" as the backend counts it for daily/weekly tasks (reset time + timezone). */
+const cycleToday = () => cycleNow(useSettingsStore.getState().settings).toISODate()!;
+
 const durationSeconds = (p: ParsedInput) => (p.durationMinutes ? p.durationMinutes * 60 : null);
 
 export async function createDailyTask(p: ParsedInput): Promise<void> {
@@ -27,7 +32,7 @@ export async function createDailyTask(p: ParsedInput): Promise<void> {
     priority: p.priority ?? "medium",
     scheduledTime: p.startTime,
     durationSeconds: durationSeconds(p),
-    startDate: todayIsoDate(),
+    startDate: cycleToday(),
   });
 }
 
@@ -58,7 +63,7 @@ export async function createWeeklyTask(p: ParsedInput, defaultDays: number[]): P
     scheduledTime: p.startTime,
     durationSeconds: durationSeconds(p),
     recurrenceDays: days,
-    startDate: todayIsoDate(),
+    startDate: cycleToday(),
   });
 }
 

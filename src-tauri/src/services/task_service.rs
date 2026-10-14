@@ -71,6 +71,16 @@ pub fn create_task(conn: &Connection, mut input: CreateTaskInput) -> AppResult<T
     } else {
         input.list_id = None;
     }
+    // A new daily/weekly task must show up right away. The caller picks the
+    // start date from the computer clock, which can be a day ahead of the
+    // app's "today" (other timezone, or before the daily reset hour); a start
+    // date in the future would hide the task until then.
+    if matches!(input.task_type, TaskType::Daily | TaskType::Weekly) {
+        let cycle_date = current_cycle_date(conn)?;
+        if input.start_date.as_str() > cycle_date.as_str() {
+            input.start_date = cycle_date;
+        }
+    }
     tasks_repo::create(conn, &input)
 }
 
@@ -328,6 +338,31 @@ mod tests {
             end_date: None,
             list_id: None,
         }
+    }
+
+    #[test]
+    fn a_new_recurring_task_is_visible_even_if_the_caller_sent_a_future_start_date() {
+        let db = Db::open_in_memory().unwrap();
+        let conn = db.lock().unwrap();
+
+        // The computer clock was a day ahead of the app's "today".
+        let mut daily = daily_task_input("Beber água");
+        daily.start_date = "2999-01-01".into();
+        let created = create_task(&conn, daily).unwrap();
+        assert_eq!(created.start_date, current_cycle_date(&conn).unwrap());
+        assert_eq!(list_daily_tasks(&conn).unwrap().len(), 1);
+
+        let mut weekly = daily_task_input("Academia");
+        weekly.task_type = TaskType::Weekly;
+        weekly.recurrence_days = Some(vec![0, 2, 4]);
+        weekly.start_date = "2999-01-01".into();
+        create_task(&conn, weekly).unwrap();
+        assert_eq!(list_weekly_tasks(&conn).unwrap().len(), 1);
+
+        // A start date in the past is left alone.
+        let mut old = daily_task_input("Antiga");
+        old.start_date = "2020-01-01".into();
+        assert_eq!(create_task(&conn, old).unwrap().start_date, "2020-01-01");
     }
 
     #[test]
