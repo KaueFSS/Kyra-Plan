@@ -29,3 +29,4 @@ target-test/
 *.key.pub
 .env
 .env.*
+dist-demo

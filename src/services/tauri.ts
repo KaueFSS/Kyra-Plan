@@ -1,6 +1,9 @@
-import { invoke as tauriInvoke } from "@tauri-apps/api/core";
+import { invoke as tauriInvoke, isTauri } from "@tauri-apps/api/core";
 
 export class ApiError extends Error {}
+
+/** True in a plain browser (online demo, `npm run dev`): there is no Rust backend, so an in-memory stand-in answers. */
+export const isDemo = !isTauri();
 
 /**
  * Every backend command returns `Result<T, AppError>`, and `AppError`
@@ -11,6 +14,7 @@ export class ApiError extends Error {}
  */
 export async function invoke<T>(command: string, args?: Record<string, unknown>): Promise<T> {
   try {
+    if (isDemo) return await (await import("./demoBackend")).demoInvoke<T>(command, args);
     return await tauriInvoke<T>(command, args);
   } catch (err) {
     const message = typeof err === "string" ? err : "Ocorreu um erro inesperado.";

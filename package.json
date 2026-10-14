@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "tauri": "tauri",
-    "release": "node scripts/release.mjs"
+    "release": "node scripts/release.mjs",
+    "build:demo": "tsc && vite build --base ./ --outDir dist-demo"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

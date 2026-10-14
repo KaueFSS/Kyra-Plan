@@ -12,6 +12,7 @@ import { RingOverlay } from "./components/ring/RingOverlay";
 import { UpdateToast, useAutoUpdateCheck } from "./components/update/UpdateToast";
 import { Toaster } from "./components/feedback/Toaster";
 import { WhatsNew } from "./components/update/WhatsNew";
+import { DemoBadge } from "./components/ui/DemoBadge";
 import { DashboardPage } from "./pages/DashboardPage";
 import { CalendarPage } from "./pages/CalendarPage";
 import { DailyTasksPage } from "./pages/DailyTasksPage";
@@ -105,6 +106,7 @@ function App() {
       <UpdateToast />
       <Toaster />
       <WhatsNew />
+      <DemoBadge />
     </div>
   );
 }
