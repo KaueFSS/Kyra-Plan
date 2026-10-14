@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 80 80">
   <title>Kyra Plan</title>
-  <desc>Kyra Plan app icon: a calendar holding the Kyra K, with the teal dot marking the day.</desc>
+  <desc>Kyra Plan app icon: the Kyra K with its teal dot, on blue.</desc>
   <defs>
     <linearGradient id="kp-bg" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#4f9dff"/>
@@ -8,10 +8,8 @@
     </linearGradient>
   </defs>
   <rect width="80" height="80" rx="18" fill="url(#kp-bg)"/>
-  <g fill="none" stroke="#fff" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="16" y="24" width="48" height="42" rx="9"/>
-    <path d="M16 35H64M29 17.5V27M51 17.5V27"/>
-    <path d="M32 41.5V60M32 51L47.5 42.5M32 51L47.5 59.5" stroke-width="4.6"/>
+  <g transform="translate(0 1.6)">
+    <path d="M27 17.5V62.5M27 40L50 19.5M27 40L50 60.5" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="53.5" cy="16.5" r="6.2" fill="#2dd4bf"/>
   </g>
-  <circle cx="50" cy="41.5" r="4.2" fill="#2dd4bf"/>
 </svg>
