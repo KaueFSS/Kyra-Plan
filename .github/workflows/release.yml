@@ -7,6 +7,13 @@ name: Publicar versão
 on:
   push:
     tags: ["v*"]
+  # Recompila uma versão que já existe com o código atual e troca os arquivos
+  # dela na release (a tag e o número da versão não mudam).
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag da release a recompilar (ex.: v1.3.0)
+        required: true
 
 permissions:
   contents: write
@@ -26,9 +33,11 @@ jobs:
       - name: Notas da versão (mensagem da tag)
         id: notes
         shell: bash
+        env:
+          TAG: ${{ inputs.tag || github.ref_name }}
         run: |
           git fetch --tags --force
-          body="$(git tag -l --format='%(contents)' "${GITHUB_REF_NAME}")"
+          body="$(git tag -l --format='%(contents)' "${TAG}")"
           # Uma linha "[pre-release]" na mensagem da tag publica como pré-lançamento:
           # dá para baixar e testar, mas o auto-update (releases/latest) ignora.
           if printf '%s\n' "$body" | grep -q '^\[pre-release\]'; then pre=true; else pre=false; fi
@@ -67,8 +76,8 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: Kyra Plan ${{ github.ref_name }}
+          tagName: ${{ inputs.tag || github.ref_name }}
+          releaseName: Kyra Plan ${{ inputs.tag || github.ref_name }}
           releaseBody: ${{ steps.notes.outputs.body }}
           releaseDraft: false
           prerelease: ${{ steps.notes.outputs.prerelease }}
