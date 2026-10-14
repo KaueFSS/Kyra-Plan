@@ -8,7 +8,6 @@
 
 [![Última versão](https://img.shields.io/github/v/release/KaueFSS/SentUtility?label=vers%C3%A3o&color=2b8af7)](https://github.com/KaueFSS/SentUtility/releases/latest)
 [![Testes](https://github.com/KaueFSS/SentUtility/actions/workflows/ci.yml/badge.svg)](https://github.com/KaueFSS/SentUtility/actions/workflows/ci.yml)
-[![Downloads](https://img.shields.io/github/downloads/KaueFSS/SentUtility/total?color=30a46c)](https://github.com/KaueFSS/SentUtility/releases)
 ![Tauri 2](https://img.shields.io/badge/Tauri-2-24c8db)
 ![React 19](https://img.shields.io/badge/React-19-61dafb)
 ![Rust](https://img.shields.io/badge/Rust-backend-dea584)
