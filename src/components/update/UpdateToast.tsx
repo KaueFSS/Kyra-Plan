@@ -40,7 +40,7 @@ export function UpdateToast() {
   return (
     <div className="fixed bottom-4 right-4 z-[70] w-[22rem] overflow-hidden rounded-2xl border border-border-strong bg-surface-1 shadow-2xl shadow-black/50">
       <div className="flex items-start gap-3 p-4">
-        <img src="/app-icon.svg" alt="" className="h-10 w-10 shrink-0 rounded-xl" />
+        <img src={`${import.meta.env.BASE_URL}kyra-plan.svg`} alt="" className="h-10 w-10 shrink-0 rounded-xl" />
         <div className="min-w-0 flex-1">
           {status.kind === "available" && (
             <>

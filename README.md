@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="public/app-icon.svg" width="96" alt="Ícone do Kyra Plan" />
+<img src="public/kyra-plan.svg" width="96" alt="Ícone do Kyra Plan" />
 
 # Kyra Plan
 

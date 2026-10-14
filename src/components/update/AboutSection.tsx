@@ -42,7 +42,7 @@ export function AboutSection() {
 
   return (
     <div className="ff-card flex items-center gap-4 p-5">
-      <img src="/app-icon.svg" alt="" className="h-14 w-14 shrink-0 rounded-2xl" />
+      <img src={`${import.meta.env.BASE_URL}kyra-plan.svg`} alt="" className="h-14 w-14 shrink-0 rounded-2xl" />
       <div className="min-w-0 flex-1">
         <p className="text-base font-semibold text-text-primary">
           Kyra Plan <span className="ml-1 text-sm font-medium text-text-muted">{currentVersion ? `versão ${currentVersion}` : "modo navegador"}</span>

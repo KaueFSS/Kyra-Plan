@@ -68,7 +68,7 @@ export function WhatsNew() {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-3 border-b border-border-subtle px-5 py-4">
-          <img src="/app-icon.svg" alt="" className="h-10 w-10 rounded-xl" />
+          <img src={`${import.meta.env.BASE_URL}kyra-plan.svg`} alt="" className="h-10 w-10 rounded-xl" />
           <div className="min-w-0 flex-1">
             <p className="flex items-center gap-1.5 text-base font-semibold text-text-primary">
               <Sparkles size={15} className="text-accent-400" /> O que há de novo
