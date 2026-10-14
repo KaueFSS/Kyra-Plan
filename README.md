@@ -164,16 +164,19 @@ Tudo isso, com os arquivos onde cada coisa mora, está em [docs/ARQUITETURA.md](
 
 O histórico do repositório conta a história, um passo de cada vez:
 
+> Alguns envios foram grandes (a base de 29/09, por exemplo, subiu de uma vez). Para o histórico ficar legível, eles foram **reorganizados em passos menores e explicados**. O conteúdo é exatamente o mesmo e as datas e horários são os reais de cada envio; os links abaixo levam ao último passo de cada grupo.
+
+
 | Quando | Commit | O que entrou |
 |---|---|---|
-| 29/09 | [`37a6573`](https://github.com/KaueFSS/Kyra-Plan/commit/37a6573) **SentUtility 1.0.0** (o nome de então) | A base completa: backend Rust com SQLite e migrations, painel em guias e widgets, calendário, tarefas diárias e semanais, programação, foco, alarmes, relógio mundial, busca, tema, ícones próprios, instalador e atualização automática |
-| 29/09 | [`993cb45`](https://github.com/KaueFSS/Kyra-Plan/commit/993cb45) Script de release aceita `Cargo.lock` com CRLF | Primeiro ajuste do processo de publicação, descoberto ao lançar |
-| 13/10 | [`e076389`](https://github.com/KaueFSS/Kyra-Plan/commit/e076389) Listas de tarefas, sequência, calendário e planners novos, sons e novidades | A grande rodada de produto: listas avulsas, chama de sequência, calendário em grade, planners em colunas, barra de status, cores livres e sons |
-| 13/10 | [`71a1b73`](https://github.com/KaueFSS/Kyra-Plan/commit/71a1b73) **Versão 1.1.0** | Primeira versão publicada com essas novidades |
-| 13/10 | [`8ede450`](https://github.com/KaueFSS/Kyra-Plan/commit/8ede450) Ordem manual nas listas, som ao redimensionar e campo de escrever mais esperto | Arrastar para ordenar, linguagem natural em inglês, sugestões e completar com Tab |
-| 13/10 | [`e407bec`](https://github.com/KaueFSS/Kyra-Plan/commit/e407bec) **Versão 1.2.0** | Publicação da rodada acima |
-| 14/10 | [`e4effa0`](https://github.com/KaueFSS/Kyra-Plan/commit/e4effa0) Tarefas recorrentes novas sempre visíveis e Enter do campo não é sequestrado pelo mouse | Dois bugs reais reportados por um usuário, corrigidos com teste |
-| 14/10 | [`f897733`](https://github.com/KaueFSS/Kyra-Plan/commit/f897733) **Versão 1.2.1** | Correção publicada — quem já tinha o app recebeu sozinho |
+| 29/09 | [`46be0dd`](https://github.com/KaueFSS/Kyra-Plan/commit/46be0dd) **SentUtility 1.0.0** (o nome de então) | A base completa: backend Rust com SQLite e migrations, painel em guias e widgets, calendário, tarefas diárias e semanais, programação, foco, alarmes, relógio mundial, busca, tema, ícones próprios, instalador e atualização automática |
+| 29/09 | [`45aa4ac`](https://github.com/KaueFSS/Kyra-Plan/commit/45aa4ac) Script de release aceita `Cargo.lock` com CRLF | Primeiro ajuste do processo de publicação, descoberto ao lançar |
+| 13/10 | [`8391a61`](https://github.com/KaueFSS/Kyra-Plan/commit/8391a61) Listas de tarefas, sequência, calendário e planners novos, sons e novidades | A grande rodada de produto: listas avulsas, chama de sequência, calendário em grade, planners em colunas, barra de status, cores livres e sons |
+| 13/10 | [`8ef3b87`](https://github.com/KaueFSS/Kyra-Plan/commit/8ef3b87) **Versão 1.1.0** | Primeira versão publicada com essas novidades |
+| 13/10 | [`91023f6`](https://github.com/KaueFSS/Kyra-Plan/commit/91023f6) Ordem manual nas listas, som ao redimensionar e campo de escrever mais esperto | Arrastar para ordenar, linguagem natural em inglês, sugestões e completar com Tab |
+| 13/10 | [`f031a85`](https://github.com/KaueFSS/Kyra-Plan/commit/f031a85) **Versão 1.2.0** | Publicação da rodada acima |
+| 14/10 | [`87a64cc`](https://github.com/KaueFSS/Kyra-Plan/commit/87a64cc) Tarefas recorrentes novas sempre visíveis e Enter do campo não é sequestrado pelo mouse | Dois bugs reais reportados por um usuário, corrigidos com teste |
+| 14/10 | [`ead06f0`](https://github.com/KaueFSS/Kyra-Plan/commit/ead06f0) **Versão 1.2.1** | Correção publicada — quem já tinha o app recebeu sozinho |
 | 14/10 | Demonstração, documentação e CI | Modo demonstração no navegador, este README e a integração contínua |
 | 14/10 | Renomeado para **Kyra Plan** · v1.3.0 | Nome e ícone novos, atualizando sozinho para quem já usava o app (veja [como a troca chega a quem já instalou](docs/DESENVOLVIMENTO.md#da-troca-de-nome-de-sentutility-para-kyra-plan)). Nada do que a pessoa criou se perde |
 
