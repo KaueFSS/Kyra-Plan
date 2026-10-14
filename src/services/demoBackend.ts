@@ -89,7 +89,7 @@ const tasks: Task[] = [
   makeTask({ title: "Revisão semanal", taskType: "weekly", recurrenceDays: [6], scheduledTime: "20:00", priority: "high" }),
   makeTask({ title: "Ir ao mercado", taskType: "weekly", recurrenceDays: [5], scheduledTime: "10:00" }),
   makeTask({ title: "Backup dos projetos", taskType: "weekly", recurrenceDays: [4] }),
-  makeTask({ title: "Foco: projeto SentUtility", taskType: "timed", durationSeconds: 25 * 60, priority: "high" }),
+  makeTask({ title: "Foco: projeto Kyra Plan", taskType: "timed", durationSeconds: 25 * 60, priority: "high" }),
   makeTask({ title: "Entregar relatório de estágio", taskType: "single", listId: "inbox", priority: "high", scheduledTime: "17:00", startDate: today().toISODate()! }),
   makeTask({ title: "Renovar passaporte", taskType: "single", listId: "inbox", startDate: today().plus({ days: 3 }).toISODate()! }),
   makeTask({ title: "Responder o e-mail da recrutadora", taskType: "single", listId: "inbox", priority: "high" }),

@@ -58,7 +58,7 @@ fn init_database(app: &tauri::App) -> Db {
 }
 
 fn setup_tray(app: &tauri::AppHandle) -> tauri::Result<()> {
-    let show = MenuItem::with_id(app, "show", "Mostrar SentUtility", true, None::<&str>)?;
+    let show = MenuItem::with_id(app, "show", "Mostrar Kyra Plan", true, None::<&str>)?;
     let quit = MenuItem::with_id(app, "quit", "Sair", true, None::<&str>)?;
     let menu = Menu::with_items(app, &[&show, &quit])?;
 

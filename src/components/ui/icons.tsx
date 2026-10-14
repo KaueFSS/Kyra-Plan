@@ -1,7 +1,7 @@
 import type { ComponentType, ReactNode, SVGProps } from "react";
 
 /**
- * SentUtility's own icon set. Every icon is drawn on a 24px grid with a firm,
+ * Kyra Plan's own icon set. Every icon is drawn on a 24px grid with a firm,
  * round-capped stroke plus a soft filled "shadow" of the same colour behind
  * the shape (duotone) — so icons pick up whatever accent the user chose and
  * the app doesn't look like every other one using a stock icon pack.

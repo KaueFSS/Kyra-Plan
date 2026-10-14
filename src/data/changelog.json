@@ -1,5 +1,14 @@
 [
   {
+    "version": "1.3.0",
+    "date": "2026-10-14",
+    "added": [
+      "Novo nome: o app agora é o Kyra Plan",
+      "Ícone novo, na janela, no instalador e na bandeja",
+      "Tudo o que você já tinha continua aí: tarefas, eventos, cores e configurações"
+    ]
+  },
+  {
     "version": "1.2.1",
     "date": "2026-10-14",
     "added": [

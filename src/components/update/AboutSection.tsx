@@ -45,7 +45,7 @@ export function AboutSection() {
       <img src="/app-icon.svg" alt="" className="h-14 w-14 shrink-0 rounded-2xl" />
       <div className="min-w-0 flex-1">
         <p className="text-base font-semibold text-text-primary">
-          SentUtility <span className="ml-1 text-sm font-medium text-text-muted">{currentVersion ? `versão ${currentVersion}` : "modo navegador"}</span>
+          Kyra Plan <span className="ml-1 text-sm font-medium text-text-muted">{currentVersion ? `versão ${currentVersion}` : "modo navegador"}</span>
         </p>
         <div className="mt-0.5 text-xs text-text-muted">{line}</div>
         <button className="mt-1 text-xs font-medium text-accent-400 hover:underline" onClick={() => openWhatsNew()}>

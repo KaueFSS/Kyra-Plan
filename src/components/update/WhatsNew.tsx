@@ -73,7 +73,7 @@ export function WhatsNew() {
             <p className="flex items-center gap-1.5 text-base font-semibold text-text-primary">
               <Sparkles size={15} className="text-accent-400" /> O que há de novo
             </p>
-            <p className="text-xs text-text-muted">SentUtility {open}</p>
+            <p className="text-xs text-text-muted">Kyra Plan {open}</p>
           </div>
           <button onClick={close} className="rounded-md p-1 text-text-muted hover:bg-surface-2 hover:text-text-primary" aria-label="Fechar">
             <X size={16} />

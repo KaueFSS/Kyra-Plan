@@ -48,7 +48,7 @@ export function UpdateToast() {
                 <Sparkles size={14} className="text-accent-400" /> Nova versão disponível
               </p>
               <p className="mt-0.5 text-xs text-text-muted">
-                SentUtility <span className="font-semibold text-text-secondary">{status.version}</span>
+                Kyra Plan <span className="font-semibold text-text-secondary">{status.version}</span>
                 {currentVersion && <> · você está na {currentVersion}</>}
               </p>
               {status.notes && <p className="mt-2 line-clamp-3 whitespace-pre-line text-xs text-text-secondary">{status.notes}</p>}
@@ -66,7 +66,7 @@ export function UpdateToast() {
           {status.kind === "installing" && (
             <>
               <p className="text-sm font-semibold text-text-primary">Instalando a versão {status.version}…</p>
-              <p className="mt-0.5 text-xs text-text-muted">O SentUtility vai reabrir sozinho em instantes.</p>
+              <p className="mt-0.5 text-xs text-text-muted">O Kyra Plan vai reabrir sozinho em instantes.</p>
             </>
           )}
         </div>

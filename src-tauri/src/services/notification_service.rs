@@ -48,19 +48,19 @@ fn ring(app: &AppHandle, payload: RingPayload) {
 pub fn alarm_fired(app: &AppHandle, label: &str, time: &str, notify_os: bool) {
     let title = if label.is_empty() { "Alarme".to_string() } else { label.to_string() };
     if notify_os {
-        notify(app, "SentUtility — Alarme", &format!("{title} · {time}"));
+        notify(app, "Kyra Plan — Alarme", &format!("{title} · {time}"));
     }
     ring(app, RingPayload { kind: RingKind::Alarm, title, subtitle: time.to_string() });
 }
 
 pub fn timer_finished(app: &AppHandle, label: &str) {
     let title = if label.is_empty() { "Timer concluído".to_string() } else { label.to_string() };
-    notify(app, "SentUtility", "Seu timer terminou.");
+    notify(app, "Kyra Plan", "Seu timer terminou.");
     ring(app, RingPayload { kind: RingKind::Timer, title, subtitle: "O tempo acabou".into() });
 }
 
 pub fn task_finished(app: &AppHandle, task_title: &str) {
-    notify(app, "SentUtility", &format!("\"{task_title}\" concluída!"));
+    notify(app, "Kyra Plan", &format!("\"{task_title}\" concluída!"));
     ring(
         app,
         RingPayload { kind: RingKind::Task, title: task_title.to_string(), subtitle: "Tarefa concluída — tempo cumprido".into() },
@@ -70,7 +70,7 @@ pub fn task_finished(app: &AppHandle, task_title: &str) {
 pub fn notify_event_upcoming(app: &AppHandle, event_title: &str, minutes_until: i64) {
     notify(
         app,
-        "SentUtility",
+        "Kyra Plan",
         &format!("\"{event_title}\" começa em {minutes_until} minuto(s)."),
     );
 }

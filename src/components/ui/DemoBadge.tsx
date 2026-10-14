@@ -5,7 +5,7 @@ export function DemoBadge() {
   if (!isDemo || new URLSearchParams(window.location.search).has("shot")) return null;
   return (
     <a
-      href="https://github.com/KaueFSS/SentUtility/releases/latest"
+      href="https://github.com/KaueFSS/Kyra-Plan/releases/latest"
       target="_blank"
       rel="noreferrer"
       className="fixed bottom-12 right-3 z-50 rounded-full border border-border-subtle bg-surface-2/95 px-3 py-1.5 text-[0.75rem] text-text-secondary shadow-lg backdrop-blur transition-colors hover:text-text-primary"
